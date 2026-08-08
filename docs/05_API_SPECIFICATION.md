@@ -8,3 +8,94 @@ PATCH /applications/{id}
 GET /notifications
 POST /preferences
 GET /preferences
+
+## Implemented (Phase 2)
+
+### GET /preferences
+Returns the current user's preferences.
+- 200: `PreferencesResponse` (see below)
+- 404: `{"detail": "No preferences set for user <id>"}` if never saved
+
+### POST /preferences
+Creates or updates (upserts) the current user's preferences. Body: `PreferencesRequest`.
+- 200: `PreferencesResponse`
+- 422: validation error (empty role/skill/location list, `experience_years` outside 0-60, `max_ctc < min_ctc`, invalid `work_mode`)
+
+**PreferencesRequest**
+```json
+{
+  "target_roles": ["Backend Engineer"],
+  "skills": ["Python", "SQL"],
+  "locations": ["Bangalore", "Remote"],
+  "experience_years": 2,
+  "min_ctc": 800000,
+  "max_ctc": 1500000,
+  "work_mode": "remote"
+}
+```
+`min_ctc`/`max_ctc` are optional (nullable). `work_mode` is one of `remote`, `hybrid`, `onsite`, `any`.
+
+**PreferencesResponse**: same fields as the request, plus `id`, `user_id`, `created_at`, `updated_at`.
+
+### POST /resume/upload
+Multipart upload, field name `file`. Accepts a single PDF (max size configured via `RESUME_MAX_SIZE_MB`, default 5MB).
+- 201: `ResumeResponse`
+- 400: file missing, wrong extension/content-type, empty, not a valid PDF (magic-byte check), or over the size limit
+
+**ResumeResponse**
+```json
+{
+  "id": 1,
+  "user_id": 1,
+  "original_filename": "resume.pdf",
+  "content_type": "application/pdf",
+  "size_bytes": 48213,
+  "uploaded_at": "2026-08-04T12:00:00Z",
+  "parsed_skills": ["Python", "FastAPI", "PostgreSQL"],
+  "parsed_education": ["B.Tech"],
+  "parsed_experience_years": 3.0,
+  "parsed_at": "2026-08-05T09:00:00Z"
+}
+```
+`parsed_*` fields come from rule-based extraction (see `docs/08_RESUME_PARSER.md`) and are null/empty if nothing was found or parsing failed - this never fails the upload itself.
+
+Remaining endpoints (`/applications`, `/notifications`) are implemented in later phases.
+
+## Implemented (Phase 4)
+
+### GET /jobs
+List stored jobs, most recently fetched first.
+- Query params: `source` (optional, e.g. `greenhouse`), `limit` (default 50, max 200), `offset` (default 0)
+- 200: `list[JobResponse]`
+
+### GET /jobs/{id}
+Return a single job by id.
+- 200: `JobResponse`
+- 404: `{"detail": "No job found with id <id>"}`
+
+**JobResponse**
+```json
+{
+  "id": 1,
+  "source": "greenhouse",
+  "external_id": "4020123",
+  "title": "Backend Engineer",
+  "company": "Acme",
+  "location": "Remote - US",
+  "is_remote": true,
+  "description": "Build our API...",
+  "apply_url": "https://boards.greenhouse.io/acme/jobs/4020123",
+  "posted_at": "2026-08-01T16:00:00Z",
+  "fetched_at": "2026-08-06T09:00:00Z"
+}
+```
+
+### POST /jobs/fetch
+Manually runs the fetch pipeline for all four sources (Greenhouse, Lever, Remotive, Arbeitnow) and upserts results. Not in the original endpoint list above - added because the scheduler that will normally trigger this doesn't exist until Phase 8.
+- 200: `list[JobFetchSummary]`, one entry per source
+
+**JobFetchSummary**
+```json
+{"source": "greenhouse", "fetched": 12, "created": 10, "updated": 2, "failed": false}
+```
+A source with nothing configured (Greenhouse/Lever with no board tokens/company slugs set) still returns a summary with `fetched: 0`, not an error.

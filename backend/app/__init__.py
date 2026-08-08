@@ -1,0 +1,1 @@
+"""JobPulse backend application package."""

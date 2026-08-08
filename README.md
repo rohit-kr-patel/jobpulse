@@ -69,7 +69,7 @@ JobPulse/
 ├── backend/
 ├── frontend/
 ├── docs/
-├── prompts/
+├── tasks/
 ├── assets/
 ├── README.md
 └── CLAUDE.md
@@ -92,10 +92,10 @@ JobPulse/
 # 🗺 Roadmap
 
 - [x] Documentation
-- [ ] Phase 1 – Project Setup
-- [ ] Phase 2 – User Profile
-- [ ] Phase 3 – Resume Parser
-- [ ] Phase 4 – Job Fetchers
+- [x] Phase 1 – Project Setup
+- [x] Phase 2 – User Profile
+- [x] Phase 3 – Resume Parser
+- [x] Phase 4 – Job Fetchers
 - [ ] Phase 5 – Database & APIs
 - [ ] Phase 6 – Dashboard
 - [ ] Phase 7 – Matching Engine
@@ -117,15 +117,29 @@ JobPulse/
 ```bash
 git clone <repository-url>
 cd JobPulse
+cp .env.example .env
 ```
 
-Backend (planned):
+Option 1 - Docker Compose (recommended, runs Postgres + API together):
+
+```bash
+docker compose up --build
+# in another terminal, apply migrations once the containers are up:
+docker compose exec backend alembic upgrade head
+```
+
+Option 2 - Run the backend directly (requires a local PostgreSQL matching your `.env`):
 
 ```bash
 cd backend
 pip install -r requirements.txt
+alembic upgrade head
 uvicorn app.main:app --reload
 ```
+
+Then check the health endpoint at `http://localhost:8000/health`, and open `frontend/index.html` in a browser (try `preferences.html` and `resume-upload.html` too).
+
+To pull in jobs, set `GREENHOUSE_BOARD_TOKENS` and/or `LEVER_COMPANY_SLUGS` in `.env` (see the comments there), then trigger a fetch: `curl -X POST http://localhost:8000/jobs/fetch`. Remotive and Arbeitnow need no configuration and will fetch regardless.
 
 ---
 
@@ -137,11 +151,15 @@ Project documentation is available in the `docs/` directory.
 
 # 📌 Current Status
 
-Version: **0.1.0**
+Version: **0.5.0**
 
 Current milestone:
 - Documentation complete
-- Ready to begin Phase 1
+- Phase 1 (Project Setup) complete
+- Phase 2 (User Profile) complete
+- Phase 3 (Resume Parser) complete
+- Phase 4 (Job Fetchers) complete
+- Ready to begin Phase 5
 
 ---
 

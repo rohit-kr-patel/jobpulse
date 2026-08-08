@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JobPulse - Resume Upload</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <main class="page">
+    <a class="back-link" href="index.html">&larr; Back</a>
+    <h1>Resume Upload</h1>
+    <p class="page-subtitle">
+      Upload a PDF resume (max 5MB). We'll pull out skills, education, and
+      years of experience automatically using rule-based extraction.
+    </p>
+
+    <form id="resume-form" novalidate>
+      <label for="resume_file">Resume (PDF)</label>
+      <input type="file" id="resume_file" name="resume_file" accept="application/pdf" required />
+
+      <button type="submit">Upload resume</button>
+    </form>
+
+    <p id="form-message" class="form-message" role="status"></p>
+    <div id="parsed-results" class="parsed-results"></div>
+  </main>
+  <script src="js/api.js"></script>
+  <script src="js/resume-upload.js"></script>
+</body>
+</html>

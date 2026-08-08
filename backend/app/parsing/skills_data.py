@@ -1,0 +1,42 @@
+"""Canonical skill keywords used for rule-based extraction.
+
+This list is intentionally scoped to software engineering, since
+that's JobPulse's target domain (see docs/01_PRODUCT_REQUIREMENTS.md).
+Extend this list as needed - matching is a simple case-insensitive
+substring search with word-boundary guards (see resume_parser.py), so
+no other code needs to change when new skills are added.
+"""
+
+KNOWN_SKILLS: list[str] = [
+    # Languages
+    "Python", "JavaScript", "TypeScript", "Java", "C++", "C#", "C",
+    "Go", "Rust", "Ruby", "PHP", "Kotlin", "Swift", "Scala", "R",
+    "SQL", "Bash", "Shell Scripting",
+
+    # Web / backend frameworks
+    "FastAPI", "Django", "Flask", "Spring Boot", "Spring", "Express.js",
+    "Express", "Node.js", "NestJS", "Ruby on Rails", "ASP.NET",
+
+    # Frontend
+    "React", "React.js", "Angular", "Vue.js", "Vue", "Next.js",
+    "HTML", "CSS", "Tailwind CSS", "Bootstrap", "Redux",
+
+    # Databases
+    "PostgreSQL", "MySQL", "MongoDB", "Redis", "SQLite", "Oracle",
+    "Cassandra", "DynamoDB", "Elasticsearch",
+
+    # Data / ML
+    "Pandas", "NumPy", "Scikit-learn", "TensorFlow", "PyTorch",
+    "Machine Learning", "Data Analysis", "Apache Spark",
+
+    # Infra / DevOps
+    "Docker", "Kubernetes", "AWS", "Azure", "GCP", "Terraform",
+    "Ansible", "Jenkins", "CI/CD", "Git", "GitHub Actions", "Linux",
+    "Nginx", "Microservices", "REST API", "GraphQL", "gRPC",
+
+    # Testing
+    "Pytest", "JUnit", "Selenium", "Jest",
+
+    # Other tooling
+    "SQLAlchemy", "Alembic", "RabbitMQ", "Kafka", "Celery",
+]

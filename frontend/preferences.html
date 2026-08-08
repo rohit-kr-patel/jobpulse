@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JobPulse - Preferences</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <main class="page">
+    <a class="back-link" href="index.html">&larr; Back</a>
+    <h1>Preferences</h1>
+    <p class="page-subtitle">These drive which jobs get fetched and how they're ranked.</p>
+
+    <form id="preferences-form" novalidate>
+      <label for="target_roles">Target roles</label>
+      <input
+        type="text"
+        id="target_roles"
+        name="target_roles"
+        placeholder="Backend Engineer, Platform Engineer"
+        required
+      />
+      <p class="field-hint">Comma-separated job titles.</p>
+
+      <label for="skills">Skills</label>
+      <input
+        type="text"
+        id="skills"
+        name="skills"
+        placeholder="Python, SQL, Docker"
+        required
+      />
+      <p class="field-hint">Comma-separated skills/technologies.</p>
+
+      <label for="locations">Preferred locations</label>
+      <input
+        type="text"
+        id="locations"
+        name="locations"
+        placeholder="Bangalore, Remote"
+        required
+      />
+      <p class="field-hint">Comma-separated locations.</p>
+
+      <label for="experience_years">Years of experience</label>
+      <input
+        type="number"
+        id="experience_years"
+        name="experience_years"
+        min="0"
+        max="60"
+        required
+      />
+
+      <div class="field-row">
+        <div>
+          <label for="min_ctc">Minimum CTC</label>
+          <input type="number" id="min_ctc" name="min_ctc" min="0" placeholder="Optional" />
+        </div>
+        <div>
+          <label for="max_ctc">Maximum CTC</label>
+          <input type="number" id="max_ctc" name="max_ctc" min="0" placeholder="Optional" />
+        </div>
+      </div>
+
+      <label for="work_mode">Work mode</label>
+      <select id="work_mode" name="work_mode" required>
+        <option value="remote">Remote</option>
+        <option value="hybrid">Hybrid</option>
+        <option value="onsite">Onsite</option>
+        <option value="any">Any</option>
+      </select>
+
+      <button type="submit">Save preferences</button>
+    </form>
+
+    <p id="form-message" class="form-message" role="status"></p>
+  </main>
+  <script src="js/api.js"></script>
+  <script src="js/preferences.js"></script>
+</body>
+</html>
