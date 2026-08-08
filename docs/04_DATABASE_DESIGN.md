@@ -83,3 +83,20 @@ Remaining tables (`jobs`, `applications`, `notifications`, `fetch_logs`) are int
 Unique constraint on `(source, external_id)` - the deduplication key. See `docs/07_JOB_FETCHER_DESIGN.md` for what this does and doesn't catch.
 
 Remaining tables (`applications`, `notifications`, `fetch_logs`) are introduced in Phase 5.
+
+### fetch_logs (Phase 5)
+| Column | Type | Notes |
+|---|---|---|
+| id | integer, PK | |
+| source | varchar(50), not null, indexed | one row per source per fetch run |
+| fetched_count | integer, not null | jobs returned by the fetcher |
+| created_count | integer, not null | new jobs inserted |
+| updated_count | integer, not null | existing jobs updated in place |
+| failed | boolean, not null | true if the source's fetch raised an exception |
+| started_at | timestamptz, not null | |
+| finished_at | timestamptz, not null | |
+| created_at | timestamptz, not null | server default now() |
+
+Written by `app/services/job_service.fetch_and_store_all` on every run (currently only reachable via the manual `POST /jobs/fetch`; Phase 8 will call the same function from a daily schedule).
+
+**Note:** `applications` and `notifications` are *not* built in Phase 5, despite being listed in the original table list above and referenced (unassigned) in `docs/05_API_SPECIFICATION.md`. They're explicitly owned by Phase 10 ("Application Tracker": save/applied/rejected/expired/history) and Phase 9 ("Browser Notifications": push/dashboard/mark-as-read) respectively - see those phase documents in `tasks/`.

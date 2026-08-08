@@ -9,10 +9,13 @@ for this known limitation.
 
 Each source is fetched and committed independently so that one
 source's failure never rolls back another source's already-fetched
-jobs, and never blocks the whole run.
+jobs, and never blocks the whole run. Every run - per source - is
+recorded to `fetch_logs` in that same commit, giving visibility into
+fetch history over time (see app/repositories/fetch_log_repository.py).
 """
 
 import logging
+from datetime import datetime, timezone
 
 import httpx
 from sqlalchemy.orm import Session
@@ -21,8 +24,9 @@ from app.core.config import Settings
 from app.core.exceptions import JobNotFoundError
 from app.fetchers import arbeitnow_fetcher, greenhouse_fetcher, lever_fetcher, remotive_fetcher
 from app.fetchers.base import NormalizedJob
+from app.models.fetch_log import FetchLog
 from app.models.job import Job
-from app.repositories import job_repository
+from app.repositories import fetch_log_repository, job_repository
 from app.schemas.job import JobFetchSummary
 
 logger = logging.getLogger(__name__)
@@ -49,10 +53,24 @@ def _normalized_job_to_values(job: NormalizedJob) -> dict:
 
 def _run_one_source(db: Session, fetcher_module, settings: Settings, client: httpx.Client) -> JobFetchSummary:
     source = fetcher_module.SOURCE
+    started_at = datetime.now(timezone.utc)
+
     try:
         normalized_jobs = fetcher_module.fetch(settings, client)
     except Exception:  # noqa: BLE001 - one source's bug must never break the whole run
         logger.exception("Job fetch failed unexpectedly for source=%s", source)
+        finished_at = datetime.now(timezone.utc)
+        fetch_log_repository.create(
+            db,
+            source=source,
+            fetched_count=0,
+            created_count=0,
+            updated_count=0,
+            failed=True,
+            started_at=started_at,
+            finished_at=finished_at,
+        )
+        db.commit()
         return JobFetchSummary(source=source, fetched=0, created=0, updated=0, failed=True)
 
     created = 0
@@ -67,6 +85,17 @@ def _run_one_source(db: Session, fetcher_module, settings: Settings, client: htt
         created += int(was_created)
         updated += int(not was_created)
 
+    finished_at = datetime.now(timezone.utc)
+    fetch_log_repository.create(
+        db,
+        source=source,
+        fetched_count=len(normalized_jobs),
+        created_count=created,
+        updated_count=updated,
+        failed=False,
+        started_at=started_at,
+        finished_at=finished_at,
+    )
     db.commit()
     logger.info(
         "Job fetch complete for source=%s fetched=%d created=%d updated=%d",
@@ -108,3 +137,8 @@ def get_job(db: Session, job_id: int) -> Job:
     if job is None:
         raise JobNotFoundError(f"No job found with id {job_id}")
     return job
+
+
+def list_fetch_logs(db: Session, *, source: str | None = None, limit: int = 50) -> list[FetchLog]:
+    """List recent fetch log entries, most recent first."""
+    return fetch_log_repository.list_recent(db, source=source, limit=limit)

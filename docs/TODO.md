@@ -5,17 +5,17 @@
 - [x] Phase 2 - User Profile (preferences CRUD, resume upload, DB models/migration, validation, frontend forms)
 - [x] Phase 3 - Resume Parser (PyMuPDF text extraction, rule-based skills/education/experience extraction, persisted to `resumes`)
 - [x] Phase 4 - Job Fetchers (Greenhouse, Lever, Remotive, Arbeitnow; normalization, dedup via `(source, external_id)`, `GET /jobs`, `GET /jobs/{id}`, manual `POST /jobs/fetch` trigger)
+- [x] Phase 5 - Database & APIs (`fetch_logs` table + `GET /fetch-logs`; error-handling tests for the global exception handler). `applications`/`notifications` deliberately NOT built here - see note below.
 
-## Next Up - Phase 5: Database & APIs
-- [ ] `applications` table + model + migration
-- [ ] `notifications` table + model + migration
-- [ ] `fetch_logs` table + model + migration
-- [ ] `POST /applications`, `PATCH /applications/{id}`
-- [ ] `GET /notifications`
-- [ ] Error handling review across all endpoints
+## Next Up - Phase 6: Dashboard
+- [ ] Job card / filters / stats components
+- [ ] Job listing view backed by `GET /jobs`
+- [ ] Job detail view backed by `GET /jobs/{id}`
+- [ ] Responsive layout
 
 ## Notes / Open Questions
-- Phase 2 built the `users`/`resumes`/`preferences` tables, and Phase 4 built `jobs`, both ahead of Phase 5's nominal ownership of "SQLAlchemy models, Alembic migrations" - each was required to make its own phase's stated tasks ("store profile in database", "store jobs") actually functional. Phase 5 now only needs `applications`, `notifications`, `fetch_logs` on top of the same Alembic setup.
+- **Phase 5 scope decision:** `docs/05_API_SPECIFICATION.md` lists `POST /applications`, `PATCH /applications/{id}`, `GET /notifications` without assigning them to a phase, which could read as Phase 5's responsibility. But `tasks/PHASE_09_BROWSER_NOTIFICATIONS.md` and `tasks/PHASE_10_APPLICATION_TRACKER.md` explicitly own that behavior (save/applied/rejected/expired/history; push/dashboard/mark-as-read). Building those tables/endpoints in Phase 5 would have preempted those phases entirely, so Phase 5 built only `fetch_logs` (the one remaining table not claimed anywhere else) instead. Flagging this prominently in case the intent was actually for Phase 5 to own them - happy to move the work earlier if so.
+- Phase 2 built the `users`/`resumes`/`preferences` tables, and Phase 4 built `jobs`, both ahead of Phase 5's nominal ownership of "SQLAlchemy models, Alembic migrations" - each was required to make its own phase's stated tasks ("store profile in database", "store jobs") actually functional.
 - Parsed resume fields (skills/education/experience) were added as new nullable columns directly on `resumes` (not a separate table) - resolved per the default noted in the previous phase.
 - Resume parsing is rule-based and approximate by design (no LLMs, per project scope) - false negatives are expected for resumes that don't match the curated skill/degree keyword lists or use unusual phrasing for experience. Worth revisiting the skill list as real resumes are tested against it.
 - Job dedup only catches re-fetches of the *same* source's job (via `source`+`external_id`); the same job posted on two different boards (e.g. a company's own Greenhouse board and a Remotive listing) is not detected. No fuzzy cross-source matching implemented - flagged as a known limitation, not silently ignored.

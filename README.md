@@ -96,7 +96,7 @@ JobPulse/
 - [x] Phase 2 – User Profile
 - [x] Phase 3 – Resume Parser
 - [x] Phase 4 – Job Fetchers
-- [ ] Phase 5 – Database & APIs
+- [x] Phase 5 – Database & APIs
 - [ ] Phase 6 – Dashboard
 - [ ] Phase 7 – Matching Engine
 - [ ] Phase 8 – Scheduler
@@ -151,7 +151,7 @@ Project documentation is available in the `docs/` directory.
 
 # 📌 Current Status
 
-Version: **0.5.0**
+Version: **0.6.0**
 
 Current milestone:
 - Documentation complete
@@ -159,7 +159,8 @@ Current milestone:
 - Phase 2 (User Profile) complete
 - Phase 3 (Resume Parser) complete
 - Phase 4 (Job Fetchers) complete
-- Ready to begin Phase 5
+- Phase 5 (Database & APIs) complete
+- Ready to begin Phase 6
 
 ---
 

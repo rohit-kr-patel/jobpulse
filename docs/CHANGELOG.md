@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.6.0 - Phase 5: Database & APIs
+- **Scope clarification (see docs/TODO.md for the full note):** `applications` and `notifications` were *not* built in this phase, despite being nominally listed in the database/API docs. Their behavior is explicitly owned by Phase 10 (Application Tracker) and Phase 9 (Browser Notifications) per those phases' own task lists - building them now would have preempted that work rather than filled a gap.
+- Added a `fetch_logs` table via migration `0004_create_fetch_logs_table.py` (verified against a live SQLite engine, chained on top of `0001`-`0003`), the one table from the original list not explicitly claimed by any other phase.
+- `app/services/job_service.fetch_and_store_all` now records one `FetchLog` row per source per run (fetched/created/updated counts, failed flag, start/finish timestamps), committed in the same transaction as that source's job upserts.
+- Added `GET /fetch-logs` (filterable by `source`, paginated) to make this fetch history visible.
+- Added a dedicated test suite for the global unhandled-exception handler (`app/main.py`), confirming it actually returns a clean generic 500 without leaking exception details - previously wired up but never directly exercised by a test, since FastAPI's `TestClient` re-raises exceptions by default unless `raise_server_exceptions=False` is set.
+- Added 8 new tests (60 total): fetch-log persistence/filtering in the service layer, `GET /fetch-logs` integration tests, and the error-handling tests above.
+
 ## v0.5.0 - Phase 4: Job Fetchers
 - Added a `jobs` table via migration `0003_create_jobs_table.py` (verified against a live SQLite engine, chained on top of `0001`/`0002`), with a unique constraint on `(source, external_id)` as the deduplication key.
 - Added fetchers (`app/fetchers/`) for all four confirmed V1 sources - Greenhouse, Lever, Remotive, Arbeitnow (verified each source's real API shape via web research before implementing, rather than guessing). Each normalizes into a shared `NormalizedJob` dataclass. Greenhouse/Lever are per-company APIs configured via `GREENHOUSE_BOARD_TOKENS`/`LEVER_COMPANY_SLUGS`; Remotive/Arbeitnow are general boards needing no per-company config.

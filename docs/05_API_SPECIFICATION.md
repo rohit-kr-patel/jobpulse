@@ -99,3 +99,26 @@ Manually runs the fetch pipeline for all four sources (Greenhouse, Lever, Remoti
 {"source": "greenhouse", "fetched": 12, "created": 10, "updated": 2, "failed": false}
 ```
 A source with nothing configured (Greenhouse/Lever with no board tokens/company slugs set) still returns a summary with `fetched: 0`, not an error.
+
+## Implemented (Phase 5)
+
+### GET /fetch-logs
+List recent job-fetch run history (one entry per source per run), most recent first. Not in the original endpoint list - added since `app/services/job_service` already computes this data on every fetch; this makes it visible instead of discarding it after the response.
+- Query params: `source` (optional), `limit` (default 50, max 200)
+- 200: `list[FetchLogResponse]`
+
+**FetchLogResponse**
+```json
+{
+  "id": 1,
+  "source": "greenhouse",
+  "fetched_count": 12,
+  "created_count": 10,
+  "updated_count": 2,
+  "failed": false,
+  "started_at": "2026-08-08T09:00:00Z",
+  "finished_at": "2026-08-08T09:00:03Z"
+}
+```
+
+**Note on `POST /applications`, `PATCH /applications/{id}`, `GET /notifications`:** these appear in the original endpoint list above but are *not* implemented in Phase 5. They're owned by Phase 10 (Application Tracker) and Phase 9 (Browser Notifications) respectively, per those phases' explicit task lists - see `tasks/PHASE_09_BROWSER_NOTIFICATIONS.md` and `tasks/PHASE_10_APPLICATION_TRACKER.md`.

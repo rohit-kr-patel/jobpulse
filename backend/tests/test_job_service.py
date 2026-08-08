@@ -12,6 +12,7 @@ import pytest
 from app.core.config import Settings
 from app.core.exceptions import JobNotFoundError
 from app.fetchers.base import NormalizedJob
+from app.repositories import fetch_log_repository
 from app.services import job_service
 
 
@@ -119,3 +120,59 @@ def test_list_jobs_filters_by_source(monkeypatch, db_session):
 def test_get_job_raises_not_found_for_missing_id(db_session):
     with pytest.raises(JobNotFoundError):
         job_service.get_job(db_session, 999999)
+
+
+def test_fetch_and_store_all_records_a_fetch_log_per_source(monkeypatch, db_session):
+    monkeypatch.setattr(
+        job_service.greenhouse_fetcher,
+        "fetch",
+        lambda *_: [_make_job("1", "Backend Engineer"), _make_job("2", "Frontend Engineer")],
+    )
+    monkeypatch.setattr(job_service.lever_fetcher, "fetch", lambda *_: [])
+    monkeypatch.setattr(job_service.remotive_fetcher, "fetch", lambda *_: [])
+    monkeypatch.setattr(job_service.arbeitnow_fetcher, "fetch", lambda *_: [])
+
+    job_service.fetch_and_store_all(db_session, Settings())
+
+    logs = fetch_log_repository.list_recent(db_session)
+    assert len(logs) == 4  # one per source, even the empty ones
+
+    greenhouse_log = next(log for log in logs if log.source == "greenhouse")
+    assert greenhouse_log.fetched_count == 2
+    assert greenhouse_log.created_count == 2
+    assert greenhouse_log.updated_count == 0
+    assert greenhouse_log.failed is False
+    assert greenhouse_log.finished_at >= greenhouse_log.started_at
+
+
+def test_fetch_and_store_all_records_a_failed_fetch_log(monkeypatch, db_session):
+    def broken_fetch(_settings, _client):
+        raise RuntimeError("simulated failure")
+
+    monkeypatch.setattr(job_service.greenhouse_fetcher, "fetch", broken_fetch)
+    monkeypatch.setattr(job_service.lever_fetcher, "fetch", lambda *_: [])
+    monkeypatch.setattr(job_service.remotive_fetcher, "fetch", lambda *_: [])
+    monkeypatch.setattr(job_service.arbeitnow_fetcher, "fetch", lambda *_: [])
+
+    job_service.fetch_and_store_all(db_session, Settings())
+
+    greenhouse_log = next(
+        log for log in fetch_log_repository.list_recent(db_session) if log.source == "greenhouse"
+    )
+    assert greenhouse_log.failed is True
+    assert greenhouse_log.fetched_count == 0
+
+
+def test_list_fetch_logs_filters_by_source(monkeypatch, db_session):
+    monkeypatch.setattr(job_service.greenhouse_fetcher, "fetch", lambda *_: [_make_job("1", "GH Job")])
+    monkeypatch.setattr(job_service.lever_fetcher, "fetch", lambda *_: [])
+    monkeypatch.setattr(job_service.remotive_fetcher, "fetch", lambda *_: [])
+    monkeypatch.setattr(job_service.arbeitnow_fetcher, "fetch", lambda *_: [])
+
+    job_service.fetch_and_store_all(db_session, Settings())
+
+    greenhouse_logs = job_service.list_fetch_logs(db_session, source="greenhouse")
+    lever_logs = job_service.list_fetch_logs(db_session, source="lever")
+    assert len(greenhouse_logs) == 1
+    assert len(lever_logs) == 1
+    assert lever_logs[0].fetched_count == 0
