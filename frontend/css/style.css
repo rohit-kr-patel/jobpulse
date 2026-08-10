@@ -1,22 +1,63 @@
+:root {
+  /* Color */
+  --ink: #12151c;
+  --ink-muted: #667085;
+  --ink-faint: #9aa2b1;
+  --surface: #ffffff;
+  --canvas: #f3f5f8;
+  --pulse: #0fa3a0;
+  --pulse-dark: #0c8481;
+  --pulse-tint: #e3f6f5;
+  --signal: #f5a524;
+  --signal-tint: #fef2df;
+  --danger: #dc2626;
+  --success: #16a34a;
+  --border: #e3e7ed;
+
+  /* Type */
+  --font-display: "Space Grotesk", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", monospace;
+
+  /* Shape */
+  --radius: 14px;
+  --radius-sm: 8px;
+  --shadow-card: 0 1px 2px rgba(18, 21, 28, 0.06), 0 1px 1px rgba(18, 21, 28, 0.04);
+  --shadow-card-hover: 0 12px 24px rgba(18, 21, 28, 0.09);
+}
+
+* {
+  box-sizing: border-box;
+}
+
 body {
-  font-family: "Inter", system-ui, sans-serif;
-  background: #f8fafc;
-  color: #1e293b;
+  font-family: var(--font-body);
+  background: var(--canvas);
+  color: var(--ink);
+  min-height: 100vh;
+  margin: 0;
+}
+
+/* ---- Simple single-card pages (index, preferences, resume-upload) ---- */
+
+body.centered-page {
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  min-height: 100vh;
-  margin: 0;
   padding: 2rem 1rem;
-  box-sizing: border-box;
 }
 
 .setup-screen {
   text-align: center;
-  background: #ffffff;
+  background: var(--surface);
   padding: 2rem 3rem;
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+}
+
+.setup-screen h1,
+.page h1 {
+  font-family: var(--font-display);
 }
 
 .setup-nav {
@@ -24,10 +65,11 @@ body {
   gap: 1rem;
   justify-content: center;
   margin-top: 1.5rem;
+  flex-wrap: wrap;
 }
 
 .setup-nav a {
-  color: #2563eb;
+  color: var(--pulse-dark);
   text-decoration: none;
   font-weight: 600;
 }
@@ -37,16 +79,16 @@ body {
 }
 
 .page {
-  background: #ffffff;
+  background: var(--surface);
   padding: 2rem 2.5rem;
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
   width: 100%;
   max-width: 480px;
 }
 
 .back-link {
-  color: #64748b;
+  color: var(--ink-muted);
   text-decoration: none;
   font-size: 0.9rem;
 }
@@ -60,7 +102,7 @@ body {
 }
 
 .page-subtitle {
-  color: #64748b;
+  color: var(--ink-muted);
   font-size: 0.9rem;
   margin-bottom: 1.5rem;
 }
@@ -77,14 +119,24 @@ form input,
 form select {
   width: 100%;
   padding: 0.55rem 0.65rem;
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
   font-size: 0.95rem;
-  box-sizing: border-box;
+  font-family: inherit;
+  color: var(--ink);
+  background: var(--surface);
+}
+
+form input:focus,
+form select:focus,
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--pulse);
+  outline-offset: 2px;
 }
 
 .field-hint {
-  color: #94a3b8;
+  color: var(--ink-faint);
   font-size: 0.8rem;
   margin: 0.3rem 0 0;
 }
@@ -102,17 +154,18 @@ form button {
   margin-top: 1.5rem;
   width: 100%;
   padding: 0.65rem;
-  background: #2563eb;
+  background: var(--pulse);
   color: #ffffff;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
+  font-family: inherit;
 }
 
 form button:hover {
-  background: #1d4ed8;
+  background: var(--pulse-dark);
 }
 
 .form-message {
@@ -122,16 +175,17 @@ form button:hover {
 }
 
 .form-message-success {
-  color: #16a34a;
+  color: var(--success);
 }
 
 .form-message-error {
-  color: #dc2626;
+  color: var(--danger);
 }
 
 .parsed-results h2 {
   font-size: 1rem;
   margin: 1.5rem 0 0.5rem;
+  font-family: var(--font-display);
 }
 
 .parsed-results p {

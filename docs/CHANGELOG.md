@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.7.0 - Phase 6: Dashboard
+- Added `dashboard.html` (`js/dashboard.js`): stats cards, live client-side filters (search/source/remote), job card grid, and a "Refresh jobs" button wired to the existing `POST /jobs/fetch`. Distinguishes "no jobs fetched yet" from "no jobs match these filters" as separate empty states.
+- Added `job-detail.html` (`js/job-detail.js`): reads `?id=` from the URL, fetches `GET /jobs/{id}`, renders full description + apply link; handles a missing/unknown id with a clear inline error instead of a blank page.
+- Introduced a real design token system in `css/style.css` (color/type/shape custom properties) plus `css/dashboard.css` for dashboard-specific components - Space Grotesk (headings) + Inter (body) + JetBrains Mono (metadata) type pairing, a teal "pulse" accent, and a freshness indicator (pulsing dot + relative time) tied to each job's actual `fetched_at`. This also refined the shared styling used by the existing `preferences.html`/`resume-upload.html`/`index.html` pages so the whole frontend now shares one visual identity.
+- All job data (titles, descriptions, company names) is rendered via `textContent`/`createElement`, never `innerHTML`, since it originates from third-party job-board APIs and must not be trusted as HTML.
+- Factored shared relative-time formatting into `js/time-utils.js` to avoid duplicating it between `dashboard.js` and `job-detail.js`.
+- **Verification note:** no browser rendering was available in the build environment. Verified via `node --check` (JS syntax) and a temporary `jsdom`-based harness that loaded the real HTML/CSS/JS, mocked `fetch`, and asserted on the resulting DOM across stats computation, freshness logic, both filters, the job-detail render, its 404 path, and both empty-state variants - not shipped as part of the deliverable.
+- **Scope note:** Login and the Notification Banner (both listed in `docs/06_FRONTEND_DESIGN.md`) were not built - V1 has no auth, and notifications are Phase 9's explicit scope.
+
 ## v0.6.0 - Phase 5: Database & APIs
 - **Scope clarification (see docs/TODO.md for the full note):** `applications` and `notifications` were *not* built in this phase, despite being nominally listed in the database/API docs. Their behavior is explicitly owned by Phase 10 (Application Tracker) and Phase 9 (Browser Notifications) per those phases' own task lists - building them now would have preempted that work rather than filled a gap.
 - Added a `fetch_logs` table via migration `0004_create_fetch_logs_table.py` (verified against a live SQLite engine, chained on top of `0001`-`0003`), the one table from the original list not explicitly claimed by any other phase.

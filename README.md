@@ -97,7 +97,7 @@ JobPulse/
 - [x] Phase 3 – Resume Parser
 - [x] Phase 4 – Job Fetchers
 - [x] Phase 5 – Database & APIs
-- [ ] Phase 6 – Dashboard
+- [x] Phase 6 – Dashboard
 - [ ] Phase 7 – Matching Engine
 - [ ] Phase 8 – Scheduler
 - [ ] Phase 9 – Browser Notifications
@@ -137,7 +137,7 @@ alembic upgrade head
 uvicorn app.main:app --reload
 ```
 
-Then check the health endpoint at `http://localhost:8000/health`, and open `frontend/index.html` in a browser (try `preferences.html` and `resume-upload.html` too).
+Then check the health endpoint at `http://localhost:8000/health`, and open `frontend/dashboard.html` in a browser (or `index.html` for a lightweight landing page linking to it, `preferences.html`, and `resume-upload.html`).
 
 To pull in jobs, set `GREENHOUSE_BOARD_TOKENS` and/or `LEVER_COMPANY_SLUGS` in `.env` (see the comments there), then trigger a fetch: `curl -X POST http://localhost:8000/jobs/fetch`. Remotive and Arbeitnow need no configuration and will fetch regardless.
 
@@ -151,7 +151,7 @@ Project documentation is available in the `docs/` directory.
 
 # 📌 Current Status
 
-Version: **0.6.0**
+Version: **0.7.0**
 
 Current milestone:
 - Documentation complete
@@ -160,7 +160,8 @@ Current milestone:
 - Phase 3 (Resume Parser) complete
 - Phase 4 (Job Fetchers) complete
 - Phase 5 (Database & APIs) complete
-- Ready to begin Phase 6
+- Phase 6 (Dashboard) complete
+- Ready to begin Phase 7
 
 ---
 
