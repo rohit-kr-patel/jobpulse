@@ -59,6 +59,18 @@ class Settings(BaseSettings):
     arbeitnow_max_pages: int = 1
     job_fetch_timeout_seconds: int = 15
 
+    # Matching engine (Phase 7). Weights are combined into one score in
+    # [0, 1] and should sum to 1.0 - see docs/09_MATCHING_ENGINE.md for
+    # what each factor measures.
+    match_weight_text_similarity: float = 0.35
+    match_weight_skills: float = 0.25
+    match_weight_role: float = 0.15
+    match_weight_location: float = 0.10
+    match_weight_experience: float = 0.10
+    match_weight_remote: float = 0.05
+    match_top_n: int = 20
+    match_candidate_pool_size: int = 1000
+
     @property
     def database_url(self) -> str:
         """Build the SQLAlchemy database URL from discrete Postgres settings."""

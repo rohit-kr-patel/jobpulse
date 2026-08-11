@@ -7,12 +7,13 @@
 - [x] Phase 4 - Job Fetchers (Greenhouse, Lever, Remotive, Arbeitnow; normalization, dedup via `(source, external_id)`, `GET /jobs`, `GET /jobs/{id}`, manual `POST /jobs/fetch` trigger)
 - [x] Phase 5 - Database & APIs (`fetch_logs` table + `GET /fetch-logs`; error-handling tests for the global exception handler). `applications`/`notifications` deliberately NOT built here - see note below.
 - [x] Phase 6 - Dashboard (job cards, live client-side filters, stats cards, job detail page, design token system, responsive layout)
+- [x] Phase 7 - Matching Engine (TF-IDF + cosine similarity + weighted skills/role/location/experience/remote scoring, `GET /matches` returning top 20)
 
-## Next Up - Phase 7: Matching Engine
-- [ ] TF-IDF vectorization of resume + preferences vs. job descriptions
-- [ ] Cosine similarity scoring
-- [ ] Weighted ranking (skills/experience/location/CTC fit)
-- [ ] Return top 20 ranked jobs
+## Next Up - Phase 8: Scheduler
+- [ ] APScheduler setup
+- [ ] Daily automated fetch (calls the existing `job_service.fetch_and_store_all` pipeline instead of requiring manual `POST /jobs/fetch`)
+- [ ] Refresh rankings
+- [ ] Update notifications (coordinate with Phase 9's ownership of the actual notification system)
 
 ## Notes / Open Questions
 - **Phase 5 scope decision:** `docs/05_API_SPECIFICATION.md` lists `POST /applications`, `PATCH /applications/{id}`, `GET /notifications` without assigning them to a phase, which could read as Phase 5's responsibility. But `tasks/PHASE_09_BROWSER_NOTIFICATIONS.md` and `tasks/PHASE_10_APPLICATION_TRACKER.md` explicitly own that behavior (save/applied/rejected/expired/history; push/dashboard/mark-as-read). Building those tables/endpoints in Phase 5 would have preempted those phases entirely, so Phase 5 built only `fetch_logs` (the one remaining table not claimed anywhere else) instead. Flagging this prominently in case the intent was actually for Phase 5 to own them - happy to move the work earlier if so.
@@ -23,3 +24,5 @@
 - Greenhouse/Lever fetch nothing until `GREENHOUSE_BOARD_TOKENS`/`LEVER_COMPANY_SLUGS` are configured with real company slugs in `.env` - there's no public directory of companies using these ATSes, so this is a manual, per-deployment configuration step, not a bug.
 - The dashboard fetches only the 200 most recent jobs and filters/searches entirely client-side (no server-side search endpoint exists yet). Fine at V1 scale; would need a real query param on `GET /jobs` if job volume grows substantially.
 - No browser was available to visually render/screenshot the dashboard in the build environment - verified instead via JS syntax checks and a jsdom harness asserting on real DOM output against mocked API responses (not shipped). Worth a quick visual check on your end before considering Phase 6 fully signed off.
+- Matching (Phase 7) does not use CTC/salary as a factor - `docs/09_MATCHING_ENGINE.md`'s canonical factor list is skills/role/location/experience/remote only, and salary data isn't reliably structured across all four job sources (Remotive has an optional freeform string; the others rarely include it at all). Not implemented, not silently dropped.
+- The dashboard does not yet have a "Top Matches" view or display match scores from `GET /matches` - Phase 7's task list is backend-only (TF-IDF/cosine/weighted-scoring/top-20), and no phase explicitly claims wiring matches into the UI. Worth deciding whether that belongs in a later phase or as an ad-hoc addition.

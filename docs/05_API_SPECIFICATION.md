@@ -122,3 +122,24 @@ List recent job-fetch run history (one entry per source per run), most recent fi
 ```
 
 **Note on `POST /applications`, `PATCH /applications/{id}`, `GET /notifications`:** these appear in the original endpoint list above but are *not* implemented in Phase 5. They're owned by Phase 10 (Application Tracker) and Phase 9 (Browser Notifications) respectively, per those phases' explicit task lists - see `tasks/PHASE_09_BROWSER_NOTIFICATIONS.md` and `tasks/PHASE_10_APPLICATION_TRACKER.md`.
+
+## Implemented (Phase 7)
+
+### GET /matches
+Return the top-N jobs ranked against the current user's preferences + latest resume (see `docs/09_MATCHING_ENGINE.md`).
+- 200: `list[JobMatchResponse]`, best match first
+- 404: `{"detail": "No preferences set for user <id>"}` if preferences haven't been set yet
+
+**JobMatchResponse**
+```json
+{
+  "job": { "...": "same shape as JobResponse" },
+  "score": 0.83,
+  "text_similarity": 0.61,
+  "skill_score": 1.0,
+  "role_score": 1.0,
+  "location_score": 1.0,
+  "experience_score": 1.0,
+  "remote_score": 1.0
+}
+```

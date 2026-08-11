@@ -36,3 +36,13 @@ def create(
     db.commit()
     db.refresh(resume)
     return resume
+
+
+def get_latest_for_user(db: Session, user_id: int) -> Resume | None:
+    """Return the user's most recently uploaded resume, or None if they have none."""
+    return (
+        db.query(Resume)
+        .filter(Resume.user_id == user_id)
+        .order_by(Resume.uploaded_at.desc(), Resume.id.desc())
+        .first()
+    )

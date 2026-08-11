@@ -18,6 +18,7 @@ import fitz  # PyMuPDF
 
 from app.parsing.education_data import KNOWN_DEGREES
 from app.parsing.skills_data import KNOWN_SKILLS
+from app.text_extraction import contains_keyword, extract_years_statement
 
 logger = logging.getLogger(__name__)
 
@@ -29,10 +30,6 @@ _CASE_SENSITIVE_SKILL_KEYWORDS = {"Go", "R", "C"}
 # lowercase English words (e.g. "me", "be") if matched case-insensitively.
 _CASE_SENSITIVE_DEGREE_KEYWORDS = {"BE", "ME"}
 
-_EXPERIENCE_STATEMENT_PATTERN = re.compile(
-    r"(\d+(?:\.\d+)?)\+?\s*(?:years?|yrs?)\s*(?:of)?\s*(?:experience|exp\b)",
-    re.IGNORECASE,
-)
 _YEAR_PATTERN = re.compile(r"(19|20)\d{2}")
 
 
@@ -51,17 +48,6 @@ def extract_text(pdf_bytes: bytes) -> str:
         return "\n".join(page.get_text() for page in document)
 
 
-def _contains_keyword(text: str, keyword: str, *, case_sensitive: bool) -> bool:
-    """Whole-token match: `keyword` must not be flanked by alphanumeric chars.
-
-    Works for keywords containing punctuation (e.g. "Node.js", "C++")
-    since the boundary check only excludes alphanumeric neighbours.
-    """
-    pattern = r"(?<![A-Za-z0-9])" + re.escape(keyword) + r"(?![A-Za-z0-9])"
-    flags = 0 if case_sensitive else re.IGNORECASE
-    return re.search(pattern, text, flags) is not None
-
-
 def extract_skills(text: str) -> list[str]:
     """Return the known skills that appear in the resume text.
 
@@ -72,7 +58,7 @@ def extract_skills(text: str) -> list[str]:
     matched = [
         skill
         for skill in KNOWN_SKILLS
-        if _contains_keyword(
+        if contains_keyword(
             text, skill, case_sensitive=skill in _CASE_SENSITIVE_SKILL_KEYWORDS
         )
     ]
@@ -91,7 +77,7 @@ def extract_education(text: str) -> list[str]:
     found: list[str] = []
     for degree in KNOWN_DEGREES:
         case_sensitive = degree in _CASE_SENSITIVE_DEGREE_KEYWORDS
-        if _contains_keyword(text, degree, case_sensitive=case_sensitive):
+        if contains_keyword(text, degree, case_sensitive=case_sensitive):
             found.append(degree)
     return found
 
@@ -105,9 +91,9 @@ def extract_experience_years(text: str) -> float | None:
     in the document (e.g. employment dates) - a rough approximation,
     only used when no explicit statement is found.
     """
-    statement_matches = _EXPERIENCE_STATEMENT_PATTERN.findall(text)
-    if statement_matches:
-        return max(float(value) for value in statement_matches)
+    statement_result = extract_years_statement(text)
+    if statement_result is not None:
+        return statement_result
 
     years_found = [int(m.group()) for m in _YEAR_PATTERN.finditer(text)]
     if len(years_found) >= 2:

@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.8.0 - Phase 7: Matching Engine
+- Added `app/matching/scoring.py`: TF-IDF + cosine similarity (scikit-learn) combined with four rule-based factors (skills, role, location, experience, remote-fit) into one weighted score in `[0, 1]`. TF-IDF was the locked-in V1 choice over sentence embeddings, made during initial project scoping.
+- Weights (`MATCH_WEIGHT_*`) and the top-N cutoff (`MATCH_TOP_N`, default 20) are configurable via settings rather than hardcoded.
+- Added `app/services/matching_service.get_top_matches`: builds a profile from preferences + the latest resume (skills unioned/deduped, experience prefers the resume's parsed figure) and ranks all stored jobs (up to `MATCH_CANDIDATE_POOL_SIZE`) against it.
+- Added `GET /matches` (not in the original API spec - added since ranking jobs is the entire point of this phase and needs a way to surface the result), returning the top-N jobs with a full per-factor score breakdown. 404s if preferences aren't set yet; a missing resume degrades gracefully rather than blocking.
+- Refactored: the whole-token keyword matcher and "years of experience" statement regex, previously private to `app/parsing/resume_parser.py`, are now shared via `app/text_extraction.py` so job matching doesn't duplicate them.
+- Added 21 new tests (84 total): scoring-factor unit tests (including the neutral-vs-partial-credit experience logic and the empty-candidate/empty-vocabulary edge cases), profile-building tests, and integration tests for `matching_service` and `GET /matches`.
+- **Scope note:** this phase is backend-only per its task list (TF-IDF, cosine similarity, weighted scoring, top 20) - the dashboard does not yet have a "Top Matches" view or display match scores.
+
 ## v0.7.0 - Phase 6: Dashboard
 - Added `dashboard.html` (`js/dashboard.js`): stats cards, live client-side filters (search/source/remote), job card grid, and a "Refresh jobs" button wired to the existing `POST /jobs/fetch`. Distinguishes "no jobs fetched yet" from "no jobs match these filters" as separate empty states.
 - Added `job-detail.html` (`js/job-detail.js`): reads `?id=` from the URL, fetches `GET /jobs/{id}`, renders full description + apply link; handles a missing/unknown id with a clear inline error instead of a blank page.
