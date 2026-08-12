@@ -71,6 +71,17 @@ class Settings(BaseSettings):
     match_top_n: int = 20
     match_candidate_pool_size: int = 1000
 
+    # Scheduler (Phase 8). Disabled by default at the code level so
+    # importing the app (e.g. in tests, or a fresh checkout with no
+    # .env) never starts a background thread unexpectedly. Real
+    # deployments should set SCHEDULER_ENABLED=true in .env - see
+    # .env.example, which defaults it on there since automated daily
+    # fetching is the whole point of the product.
+    scheduler_enabled: bool = False
+    scheduler_fetch_hour: int = 6
+    scheduler_fetch_minute: int = 0
+    scheduler_timezone: str = "UTC"
+
     @property
     def database_url(self) -> str:
         """Build the SQLAlchemy database URL from discrete Postgres settings."""

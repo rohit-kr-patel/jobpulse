@@ -99,7 +99,7 @@ JobPulse/
 - [x] Phase 5 – Database & APIs
 - [x] Phase 6 – Dashboard
 - [x] Phase 7 – Matching Engine
-- [ ] Phase 8 – Scheduler
+- [x] Phase 8 – Scheduler
 - [ ] Phase 9 – Browser Notifications
 - [ ] Phase 10 – Application Tracker
 - [ ] Phase 11 – Final Refactor
@@ -139,7 +139,7 @@ uvicorn app.main:app --reload
 
 Then check the health endpoint at `http://localhost:8000/health`, and open `frontend/dashboard.html` in a browser (or `index.html` for a lightweight landing page linking to it, `preferences.html`, and `resume-upload.html`).
 
-To pull in jobs, set `GREENHOUSE_BOARD_TOKENS` and/or `LEVER_COMPANY_SLUGS` in `.env` (see the comments there), then trigger a fetch: `curl -X POST http://localhost:8000/jobs/fetch`. Remotive and Arbeitnow need no configuration and will fetch regardless.
+To pull in jobs, set `GREENHOUSE_BOARD_TOKENS` and/or `LEVER_COMPANY_SLUGS` in `.env` (see the comments there). With `SCHEDULER_ENABLED=true` (the `.env.example` default), a fetch + ranking refresh runs automatically every day at `SCHEDULER_FETCH_HOUR:SCHEDULER_FETCH_MINUTE`; to trigger one immediately instead of waiting, call `curl -X POST http://localhost:8000/jobs/fetch`. Remotive and Arbeitnow need no configuration and will fetch regardless.
 
 ---
 
@@ -151,7 +151,7 @@ Project documentation is available in the `docs/` directory.
 
 # 📌 Current Status
 
-Version: **0.8.0**
+Version: **0.9.0**
 
 Current milestone:
 - Documentation complete
@@ -162,7 +162,8 @@ Current milestone:
 - Phase 5 (Database & APIs) complete
 - Phase 6 (Dashboard) complete
 - Phase 7 (Matching Engine) complete
-- Ready to begin Phase 8
+- Phase 8 (Scheduler) complete
+- Ready to begin Phase 9
 
 ---
 

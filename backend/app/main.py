@@ -6,7 +6,8 @@ of the single V1 user, and a generic exception handler. Phase 3 added
 resume parsing (no new routes). Phase 4 added job fetching/listing.
 Phase 5 added fetch-log history (applications/notifications remain
 Phase 10/Phase 9 scope - see docs/TODO.md). Phase 6 added the frontend
-dashboard (no new backend routes). Phase 7 adds job matching.
+dashboard (no new backend routes). Phase 7 added job matching. Phase 8
+adds the daily scheduler (disabled by default - see docs/TODO.md).
 """
 
 import logging
@@ -27,6 +28,7 @@ from app.core.config import get_settings
 from app.core.logging import configure_logging
 from app.db import session as db_session
 from app.db.seed import seed_default_user
+from app.scheduler.scheduler import start_scheduler, stop_scheduler
 
 configure_logging()
 logger = logging.getLogger(__name__)
@@ -35,7 +37,7 @@ settings = get_settings()
 
 
 @asynccontextmanager
-async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
+async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """Application startup/shutdown hooks."""
     logger.info("JobPulse backend starting up (environment=%s)", settings.environment)
 
@@ -45,7 +47,11 @@ async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
     finally:
         db.close()
 
+    app.state.scheduler = start_scheduler(settings)
+
     yield
+
+    stop_scheduler(app.state.scheduler)
     logger.info("JobPulse backend shutting down")
 
 
@@ -58,7 +64,7 @@ def create_app() -> FastAPI:
     app = FastAPI(
         title=settings.app_name,
         description="Personal job assistant: fetch, rank, and track jobs daily.",
-        version="0.7.0",
+        version="0.9.0",
         lifespan=lifespan,
     )
 

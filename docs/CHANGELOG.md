@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.9.0 - Phase 8: Scheduler
+- Added `app/scheduler/` (new `docs/17_SCHEDULER.md`): APScheduler `BackgroundScheduler` running a daily cron job (`SCHEDULER_FETCH_HOUR`/`MINUTE`/`TIMEZONE`), started/stopped via the app's existing lifespan hook.
+- The daily pipeline (`run_daily_pipeline`) calls the existing `job_service.fetch_and_store_all` (Phase 4/5, unchanged) and then `matching_service.get_top_matches` (Phase 7, unchanged) to exercise and log the full fetch-then-rank pipeline end-to-end - no new fetch or ranking logic, just automated triggering. Never raises; logs every branch (fetch summary, ranking refresh, skipped-no-preferences, no-jobs-to-rank).
+- `SCHEDULER_ENABLED` defaults to `false` at the code level (so tests / a fresh checkout with no `.env` never start a background thread unexpectedly) but defaults `true` in `.env.example`, since automated daily fetching is the product's core promise. Verified both paths directly: disabled is a true no-op (checked via thread count), enabled actually starts, registers the job, and shuts down cleanly.
+- **Scope note:** `tasks/PHASE_08_SCHEDULER.md` also lists "Update notifications," but no notifications system exists yet - that's Phase 9's explicit scope. Not implemented here; see `docs/17_SCHEDULER.md` for where it plugs in once Phase 9 exists.
+- Added 9 new tests (93 total): the pipeline function's branches and the scheduler lifecycle (build/start/stop, disabled-is-noop, enabled-registers-job).
+- Fixed a couple of missed `app.version` bumps in `main.py` from earlier phases (was still `0.7.0` going into this phase - now `0.9.0`).
+
 ## v0.8.0 - Phase 7: Matching Engine
 - Added `app/matching/scoring.py`: TF-IDF + cosine similarity (scikit-learn) combined with four rule-based factors (skills, role, location, experience, remote-fit) into one weighted score in `[0, 1]`. TF-IDF was the locked-in V1 choice over sentence embeddings, made during initial project scoping.
 - Weights (`MATCH_WEIGHT_*`) and the top-N cutoff (`MATCH_TOP_N`, default 20) are configurable via settings rather than hardcoded.
