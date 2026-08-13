@@ -16,3 +16,7 @@ class InvalidResumeFileError(Exception):
 
 class JobNotFoundError(Exception):
     """Raised when a requested job id does not exist."""
+
+
+class NotificationNotFoundError(Exception):
+    """Raised when a requested notification id does not exist (for this user)."""

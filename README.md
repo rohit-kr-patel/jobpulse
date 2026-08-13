@@ -100,7 +100,7 @@ JobPulse/
 - [x] Phase 6 – Dashboard
 - [x] Phase 7 – Matching Engine
 - [x] Phase 8 – Scheduler
-- [ ] Phase 9 – Browser Notifications
+- [x] Phase 9 – Browser Notifications
 - [ ] Phase 10 – Application Tracker
 - [ ] Phase 11 – Final Refactor
 
@@ -139,7 +139,7 @@ uvicorn app.main:app --reload
 
 Then check the health endpoint at `http://localhost:8000/health`, and open `frontend/dashboard.html` in a browser (or `index.html` for a lightweight landing page linking to it, `preferences.html`, and `resume-upload.html`).
 
-To pull in jobs, set `GREENHOUSE_BOARD_TOKENS` and/or `LEVER_COMPANY_SLUGS` in `.env` (see the comments there). With `SCHEDULER_ENABLED=true` (the `.env.example` default), a fetch + ranking refresh runs automatically every day at `SCHEDULER_FETCH_HOUR:SCHEDULER_FETCH_MINUTE`; to trigger one immediately instead of waiting, call `curl -X POST http://localhost:8000/jobs/fetch`. Remotive and Arbeitnow need no configuration and will fetch regardless.
+To pull in jobs, set `GREENHOUSE_BOARD_TOKENS` and/or `LEVER_COMPANY_SLUGS` in `.env` (see the comments there). With `SCHEDULER_ENABLED=true` (the `.env.example` default), a fetch + ranking refresh runs automatically every day at `SCHEDULER_FETCH_HOUR:SCHEDULER_FETCH_MINUTE`; to trigger one immediately instead of waiting, call `curl -X POST http://localhost:8000/jobs/fetch`. Remotive and Arbeitnow need no configuration and will fetch regardless. Set your preferences first (`preferences.html`) so each run can also create notifications for newly-fetched top matches, visible in the dashboard's notification banner.
 
 ---
 
@@ -151,7 +151,7 @@ Project documentation is available in the `docs/` directory.
 
 # 📌 Current Status
 
-Version: **0.9.0**
+Version: **0.10.0**
 
 Current milestone:
 - Documentation complete
@@ -163,7 +163,8 @@ Current milestone:
 - Phase 6 (Dashboard) complete
 - Phase 7 (Matching Engine) complete
 - Phase 8 (Scheduler) complete
-- Ready to begin Phase 9
+- Phase 9 (Browser Notifications) complete
+- Ready to begin Phase 10
 
 ---
 

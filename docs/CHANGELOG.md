@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.10.0 - Phase 9: Browser Notifications
+- Added `notifications` table (migration `0005`, chain-verified against a live SQLite engine on top of `0001`-`0004`): `user_id`, nullable `job_id`, a fully-formed `message` string, `is_read`, `created_at`.
+- Added `notification_service.create_notifications_for_new_top_matches`, wired into the scheduler's `run_daily_pipeline` (Phase 8) right after the ranking refresh, reusing its already-computed top matches. A job counts as "new" (notification-worthy) if `created_at` and `fetched_at` are within 60 seconds of each other; since `fetched_at` bumps on every re-fetch but `created_at` doesn't, this alone prevents re-notifying about the same job on subsequent days.
+- Added `GET /notifications` (`unread_only`/`limit` params), `PATCH /notifications/{id}/read`, `POST /notifications/mark-all-read`.
+- Added the dashboard Notification Banner (`js/notifications.js`), the component deferred from Phase 6: polls every 60s, dismissible list linking to each job, "mark all as read," and real browser `Notification` API integration behind an explicit consent button (not an auto-prompt).
+- **Scope note, documented in `docs/10_NOTIFICATION_SYSTEM.md`:** this is polling + the native Notification API, which only fires while the dashboard tab is open - not true push (that needs a service worker, a push subscription, and a push server with VAPID keys, none of which are referenced anywhere in the project docs). Flagged explicitly rather than overclaiming "push."
+- Added 14 new backend tests (102 total): notification service unit tests (including the newness-heuristic with controlled timestamps), route integration tests, and one true end-to-end test running the real scheduler pipeline and asserting a notification appears/reads/clears correctly.
+- Frontend verified the same way as Phase 6: `node --check` plus a temporary `jsdom` harness (8 assertions: banner rendering, browser notifications actually firing, dismiss, mark-all-read, and the permission-button show/hide flow) - not shipped as part of the deliverable.
+
 ## v0.9.0 - Phase 8: Scheduler
 - Added `app/scheduler/` (new `docs/17_SCHEDULER.md`): APScheduler `BackgroundScheduler` running a daily cron job (`SCHEDULER_FETCH_HOUR`/`MINUTE`/`TIMEZONE`), started/stopped via the app's existing lifespan hook.
 - The daily pipeline (`run_daily_pipeline`) calls the existing `job_service.fetch_and_store_all` (Phase 4/5, unchanged) and then `matching_service.get_top_matches` (Phase 7, unchanged) to exercise and log the full fetch-then-rank pipeline end-to-end - no new fetch or ranking logic, just automated triggering. Never raises; logs every branch (fetch summary, ranking refresh, skipped-no-preferences, no-jobs-to-rank).

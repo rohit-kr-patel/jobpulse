@@ -17,7 +17,7 @@ Components:
 
 Built: **Dashboard** (`dashboard.html`), **Job Details** (`job-detail.html`), **Job Card**, **Filters**, **Stats Cards**. Vanilla HTML/CSS/JS throughout, no framework or build step, consistent with `docs/03_TECH_STACK.md`.
 
-**Not built:** Login (V1 has no auth - see `docs/15_PROJECT_SCOPE.md`/`TODO.md`) and Notification Banner, which is Phase 9's explicit scope (`tasks/PHASE_09_BROWSER_NOTIFICATIONS.md`).
+**Not built:** Login - V1 has no auth, see `docs/15_PROJECT_SCOPE.md`/`TODO.md`. (Notification Banner was deferred here to Phase 9, and is now built - see below.)
 
 ### Design system
 
@@ -40,6 +40,10 @@ This token update also refined the shared styling used by `preferences.html`/`re
 ### Job Details (`job-detail.html`, `js/job-detail.js`)
 
 Reads `?id=` from the URL, fetches `GET /jobs/{id}`, and renders the full (untruncated) description, posted/fetched timestamps, and an "Apply on company site" link (opens in a new tab via `target="_blank" rel="noopener noreferrer"`). A missing or unknown id renders a clear inline error with guidance back to the dashboard, rather than a blank page.
+
+### Notification Banner (`dashboard.html`, `js/notifications.js`) - Phase 9
+
+The component deferred from Phase 6. Polls `GET /notifications?unread_only=true` every 60 seconds while the dashboard tab is open; renders a dismissible banner listing each unread notification (linking to its job), a "Mark all as read" action, and - only when the browser's Notification permission hasn't been decided yet - an explicit "Enable browser notifications" button (consent-first, not an auto-prompt on page load). Newly-seen notifications also fire a native `Notification`, tracked client-side by id so re-polling never re-fires the same alert; clicking a fired notification focuses the tab and navigates to the job. See `docs/10_NOTIFICATION_SYSTEM.md` for why this is polling + the Notification API rather than true push.
 
 ### Known limitation
 

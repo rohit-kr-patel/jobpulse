@@ -13,7 +13,7 @@ from app.core.config import Settings
 from app.core.exceptions import PreferencesNotFoundError
 from app.db import session as db_session
 from app.schemas.job import JobFetchSummary
-from app.services import job_service, matching_service
+from app.services import job_service, matching_service, notification_service
 
 logger = logging.getLogger(__name__)
 
@@ -53,13 +53,14 @@ def _log_fetch_summaries(summaries: list[JobFetchSummary]) -> None:
 
 
 def _refresh_rankings(db: Session, settings: Settings) -> None:
-    """Recompute the matching engine's top matches so they reflect today's fetch.
+    """Recompute the matching engine's top matches, then notify about new ones.
 
     GET /matches always computes live (Phase 7 has no caching layer to
-    go stale), so this step's value is (1) exercising the full
-    fetch -> rank pipeline end-to-end as part of the daily run, so a
-    break in matching is caught here rather than silently at the next
-    API call, and (2) logging today's top match for visibility.
+    go stale), so recomputing here serves two purposes: (1) exercising
+    the full fetch -> rank pipeline end-to-end as part of the daily
+    run, so a break is caught here rather than silently at the next
+    API call, and (2) feeding today's top matches into notification
+    creation (Phase 9) for whichever of them are newly-fetched jobs.
     Skipped (not a failure) if the user hasn't set preferences yet.
     """
     try:
@@ -80,3 +81,8 @@ def _refresh_rankings(db: Session, settings: Settings) -> None:
         top_match.job.company,
         top_match.score,
     )
+
+    created_notifications = notification_service.create_notifications_for_new_top_matches(
+        db, settings, matches
+    )
+    logger.info("Created %d notification(s) for newly-fetched top matches", len(created_notifications))

@@ -97,6 +97,18 @@ Remaining tables (`applications`, `notifications`, `fetch_logs`) are introduced 
 | finished_at | timestamptz, not null | |
 | created_at | timestamptz, not null | server default now() |
 
-Written by `app/services/job_service.fetch_and_store_all` on every run (currently only reachable via the manual `POST /jobs/fetch`; Phase 8 will call the same function from a daily schedule).
+Written by `app/services/job_service.fetch_and_store_all` on every run (currently reachable via the manual `POST /jobs/fetch`, and automatically via the Phase 8 daily scheduler).
 
-**Note:** `applications` and `notifications` are *not* built in Phase 5, despite being listed in the original table list above and referenced (unassigned) in `docs/05_API_SPECIFICATION.md`. They're explicitly owned by Phase 10 ("Application Tracker": save/applied/rejected/expired/history) and Phase 9 ("Browser Notifications": push/dashboard/mark-as-read) respectively - see those phase documents in `tasks/`.
+### notifications (Phase 9)
+| Column | Type | Notes |
+|---|---|---|
+| id | integer, PK | |
+| user_id | integer, FK -> users.id (ON DELETE CASCADE), indexed | |
+| job_id | integer, FK -> jobs.id (ON DELETE CASCADE), indexed, nullable | for a "view job" link; nullable for future non-job notification types |
+| message | varchar(500), not null | fully-formed, human-readable - no join needed to render |
+| is_read | boolean, not null | default false |
+| created_at | timestamptz, not null | server default now() |
+
+Created by `notification_service.create_notifications_for_new_top_matches`, called from the scheduler's daily pipeline right after the ranking refresh - see `docs/10_NOTIFICATION_SYSTEM.md`.
+
+**Note:** `applications` is *not* built yet, despite being listed in the original table list above and referenced (unassigned) in `docs/05_API_SPECIFICATION.md`. It's explicitly owned by Phase 10 ("Application Tracker": save/applied/rejected/expired/history) - see `tasks/PHASE_10_APPLICATION_TRACKER.md`.

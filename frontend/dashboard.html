@@ -27,6 +27,19 @@
       </div>
     </header>
 
+    <section id="notification-banner" class="notification-banner" hidden>
+      <div class="notification-banner-header">
+        <strong>New matches</strong>
+        <div class="notification-banner-actions">
+          <button id="enable-notifications-button" class="link-button" type="button" hidden>
+            Enable browser notifications
+          </button>
+          <button id="mark-all-read-button" class="link-button" type="button">Mark all as read</button>
+        </div>
+      </div>
+      <ul id="notification-list" class="notification-list"></ul>
+    </section>
+
     <p id="fetch-summary" class="fetch-summary" role="status"></p>
 
     <section class="stats-row" aria-label="Job feed stats">
@@ -77,6 +90,7 @@
 
   <script src="js/api.js"></script>
   <script src="js/time-utils.js"></script>
+  <script src="js/notifications.js"></script>
   <script src="js/dashboard.js"></script>
 </body>
 </html>

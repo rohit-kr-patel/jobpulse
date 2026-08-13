@@ -59,7 +59,7 @@ Multipart upload, field name `file`. Accepts a single PDF (max size configured v
 ```
 `parsed_*` fields come from rule-based extraction (see `docs/08_RESUME_PARSER.md`) and are null/empty if nothing was found or parsing failed - this never fails the upload itself.
 
-Remaining endpoints (`/applications`, `/notifications`) are implemented in later phases.
+Remaining endpoints (`/applications`) are implemented in a later phase.
 
 ## Implemented (Phase 4)
 
@@ -121,7 +121,7 @@ List recent job-fetch run history (one entry per source per run), most recent fi
 }
 ```
 
-**Note on `POST /applications`, `PATCH /applications/{id}`, `GET /notifications`:** these appear in the original endpoint list above but are *not* implemented in Phase 5. They're owned by Phase 10 (Application Tracker) and Phase 9 (Browser Notifications) respectively, per those phases' explicit task lists - see `tasks/PHASE_09_BROWSER_NOTIFICATIONS.md` and `tasks/PHASE_10_APPLICATION_TRACKER.md`.
+**Note on `POST /applications`, `PATCH /applications/{id}`:** these appear in the original endpoint list above but are *not* implemented yet. They're owned by Phase 10 (Application Tracker), per that phase's explicit task list - see `tasks/PHASE_10_APPLICATION_TRACKER.md`. `GET /notifications` (also originally listed here) is now implemented - see Phase 9 below.
 
 ## Implemented (Phase 7)
 
@@ -143,3 +143,30 @@ Return the top-N jobs ranked against the current user's preferences + latest res
   "remote_score": 1.0
 }
 ```
+
+## Implemented (Phase 9)
+
+### GET /notifications
+List the current user's notifications, most recent first.
+- Query params: `unread_only` (default `false`), `limit` (default 50, max 200)
+- 200: `list[NotificationResponse]`
+
+**NotificationResponse**
+```json
+{
+  "id": 1,
+  "job_id": 42,
+  "message": "New match: Backend Engineer at Acme (85% fit)",
+  "is_read": false,
+  "created_at": "2026-08-12T06:00:00Z"
+}
+```
+
+### PATCH /notifications/{id}/read
+Mark a single notification as read. Not in the original endpoint list - added since "mark as read" is an explicit Phase 9 task.
+- 200: `NotificationResponse`
+- 404: `{"detail": "No notification found with id <id>"}`
+
+### POST /notifications/mark-all-read
+Mark every unread notification for the current user as read. Also not in the original list, added for the same reason.
+- 200: `{"updated": <count>}`
