@@ -10,16 +10,17 @@
 - [x] Phase 7 - Matching Engine (TF-IDF + cosine similarity + weighted skills/role/location/experience/remote scoring, `GET /matches` returning top 20)
 - [x] Phase 8 - Scheduler (APScheduler daily cron job triggering the existing fetch + ranking pipelines; "Update notifications" deliberately NOT built here - see note below)
 - [x] Phase 9 - Browser Notifications (`notifications` table, creation wired into the daily scheduler pipeline, `GET /notifications`, mark-as-read endpoints, dashboard Notification Banner + browser Notification API integration)
+- [x] Phase 10 - Application Tracker (`applications` table, save/applied/rejected via `POST`/`PATCH /applications`, `GET /applications` history view, expired-job detection via a new `is_expired` column on `jobs`, job-detail tracking controls, `applications.html` history page)
 
-## Next Up - Phase 10: Application Tracker
-- [ ] `applications` table + model + migration
-- [ ] `POST /applications` (save/applied/rejected status)
-- [ ] `PATCH /applications/{id}`
-- [ ] Expired job detection
-- [ ] Application history view
+## Next Up - Phase 11: Final Refactor
+- [ ] Codebase cleanup pass (naming consistency, dead code check across all phases)
+- [ ] Full documentation review for accuracy against final implementation
+- [ ] README polish (setup instructions, feature list)
+- [ ] Full test suite review/consolidation
+- [ ] Final CHANGELOG entry
 
 ## Notes / Open Questions
-- **Phase 5 scope decision:** `docs/05_API_SPECIFICATION.md` lists `POST /applications`, `PATCH /applications/{id}`, `GET /notifications` without assigning them to a phase, which could read as Phase 5's responsibility. But `tasks/PHASE_09_BROWSER_NOTIFICATIONS.md` and `tasks/PHASE_10_APPLICATION_TRACKER.md` explicitly own that behavior (save/applied/rejected/expired/history; push/dashboard/mark-as-read). Building those tables/endpoints in Phase 5 would have preempted those phases entirely, so Phase 5 built only `fetch_logs` (the one remaining table not claimed anywhere else) instead - notifications were correctly picked up later in Phase 9, and `applications` remains for Phase 10.
+- **Phase 5 scope decision:** `docs/05_API_SPECIFICATION.md` lists `POST /applications`, `PATCH /applications/{id}`, `GET /notifications` without assigning them to a phase, which could read as Phase 5's responsibility. But `tasks/PHASE_09_BROWSER_NOTIFICATIONS.md` and `tasks/PHASE_10_APPLICATION_TRACKER.md` explicitly own that behavior (save/applied/rejected/expired/history; push/dashboard/mark-as-read). Building those tables/endpoints in Phase 5 would have preempted those phases entirely, so Phase 5 built only `fetch_logs` (the one remaining table not claimed anywhere else) instead - notifications were picked up in Phase 9, and applications in Phase 10, exactly as anticipated.
 - Phase 2 built the `users`/`resumes`/`preferences` tables, and Phase 4 built `jobs`, both ahead of Phase 5's nominal ownership of "SQLAlchemy models, Alembic migrations" - each was required to make its own phase's stated tasks ("store profile in database", "store jobs") actually functional.
 - Parsed resume fields (skills/education/experience) were added as new nullable columns directly on `resumes` (not a separate table) - resolved per the default noted in the previous phase.
 - Resume parsing is rule-based and approximate by design (no LLMs, per project scope) - false negatives are expected for resumes that don't match the curated skill/degree keyword lists or use unusual phrasing for experience. Worth revisiting the skill list as real resumes are tested against it.
@@ -33,3 +34,6 @@
 - `SCHEDULER_ENABLED` defaults to `false` in code (`app/core/config.py`) but `true` in `.env.example` - intentional split so tests/fresh-checkouts stay inert by default while real deployments get automated fetching out of the box. Worth double-checking your `.env` has `SCHEDULER_ENABLED=true` if you want it running.
 - Phase 9's "browser push notifications" are polling + the native `Notification` API (fires only while the dashboard tab is open), not true Web Push (service worker + push subscription + VAPID-keyed push server, which would let notifications arrive with no tab open). No such push infrastructure is referenced anywhere in the project docs, so building it wasn't assumed in scope - flagged explicitly rather than silently under-delivering on "push." Worth a deliberate decision if always-on push matters enough to justify that infrastructure later.
 - The "is this job new" heuristic for notifications (comparing `created_at` to `fetched_at` within 60 seconds) is simple and self-contained (no changes needed to Phase 4/5's fetch code) but is a heuristic, not a hard guarantee - a sufficiently slow fetch run for a single source (many jobs, slow upstream API) could theoretically push some jobs' insert time past the 60s window and skip a notification. Not observed as an issue at V1's scale; worth widening the threshold if it ever is.
+- Expired-job detection (Phase 10) is also an absence-based heuristic, not a confirmed-removal signal - see `docs/18_APPLICATION_TRACKER.md`'s "Known limitation" for the tradeoff (a source silently broken longer than `JOB_EXPIRE_AFTER_DAYS` would have its jobs marked expired even if still open, though `fetch_logs` gives visibility into that).
+- Application tracking's optional `notes` field wasn't explicitly named in any doc - added as a natural, low-risk fit for "track application lifecycle." Flagging in case that reads as scope beyond what was asked.
+- `job-detail.html`/`applications.html` have no dedicated "get application by job id" endpoint to call - both fetch the full (bounded) `GET /applications` list and match client-side, consistent with the pattern already used for the dashboard's job list. Fine at V1 scale; would need a dedicated query param if the number of tracked applications grows large.

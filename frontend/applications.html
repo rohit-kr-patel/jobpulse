@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JobPulse - My Applications</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+</head>
+<body class="app-page">
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="index.html">
+        <span class="brand-dot" aria-hidden="true"></span>
+        JobPulse
+      </a>
+      <div class="topbar-actions">
+        <a class="btn btn-secondary" href="dashboard.html">&larr; Back to dashboard</a>
+      </div>
+    </header>
+
+    <h1 class="page-title">My Applications</h1>
+
+    <form class="filter-bar" id="filter-form">
+      <select id="filter-status" aria-label="Filter by status">
+        <option value="">All statuses</option>
+        <option value="saved">Saved</option>
+        <option value="applied">Applied</option>
+        <option value="rejected">Rejected</option>
+      </select>
+      <span class="filter-count" id="filter-count"></span>
+    </form>
+
+    <main id="applications-list">
+      <div class="loading-state">Loading applications...</div>
+    </main>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/time-utils.js"></script>
+  <script src="js/applications.js"></script>
+</body>
+</html>

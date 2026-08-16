@@ -432,6 +432,69 @@ body.app-page {
   margin-bottom: 1.75rem;
 }
 
+.expired-tag {
+  color: var(--danger);
+  background: #fdecec;
+}
+
+.tracking-section {
+  margin-top: 1.75rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+
+.tracking-section h2 {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  margin: 0 0 0.5rem;
+}
+
+.tracking-status {
+  font-size: 0.9rem;
+  color: var(--ink-muted);
+  margin: 0 0 0.9rem;
+}
+
+.tracking-buttons {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.tracking-buttons .btn:disabled {
+  background: var(--pulse-tint);
+  color: var(--pulse-dark);
+  border-color: var(--pulse);
+  cursor: default;
+}
+
+.tracking-section label {
+  display: block;
+  font-weight: 600;
+  font-size: 0.85rem;
+  margin-bottom: 0.35rem;
+}
+
+.tracking-section textarea {
+  width: 100%;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 0.9rem;
+  color: var(--ink);
+  resize: vertical;
+  margin-bottom: 0.75rem;
+  box-sizing: border-box;
+}
+
+.page-title {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  margin: 0 0 1.25rem;
+}
+
 /* ---- Responsive ---- */
 
 @media (max-width: 720px) {

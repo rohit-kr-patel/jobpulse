@@ -82,6 +82,11 @@ class Settings(BaseSettings):
     scheduler_fetch_minute: int = 0
     scheduler_timezone: str = "UTC"
 
+    # Application tracker (Phase 10). A job is marked expired if it
+    # hasn't reappeared in a fetch for this many days - see
+    # docs/18_APPLICATION_TRACKER.md for the reasoning.
+    job_expire_after_days: int = 3
+
     @property
     def database_url(self) -> str:
         """Build the SQLAlchemy database URL from discrete Postgres settings."""

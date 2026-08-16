@@ -4,11 +4,11 @@ Phase 1 wired up the application factory, logging, CORS, and health
 check. Phase 2 added user preferences, resume upload, startup seeding
 of the single V1 user, and a generic exception handler. Phase 3 added
 resume parsing (no new routes). Phase 4 added job fetching/listing.
-Phase 5 added fetch-log history (applications remain Phase 10 scope -
-see docs/TODO.md). Phase 6 added the frontend dashboard (no new
-backend routes). Phase 7 added job matching. Phase 8 added the daily
-scheduler (disabled by default - see docs/TODO.md). Phase 9 adds
-notifications.
+Phase 5 added fetch-log history. Phase 6 added the frontend dashboard
+(no new backend routes). Phase 7 added job matching. Phase 8 added the
+daily scheduler (disabled by default - see docs/TODO.md). Phase 9
+added notifications. Phase 10 adds the application tracker and
+expired-job detection.
 """
 
 import logging
@@ -19,6 +19,7 @@ from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
+from app.api.routes.applications import router as applications_router
 from app.api.routes.fetch_logs import router as fetch_logs_router
 from app.api.routes.health import router as health_router
 from app.api.routes.jobs import router as jobs_router
@@ -66,7 +67,7 @@ def create_app() -> FastAPI:
     app = FastAPI(
         title=settings.app_name,
         description="Personal job assistant: fetch, rank, and track jobs daily.",
-        version="0.10.0",
+        version="0.11.0",
         lifespan=lifespan,
     )
 
@@ -99,6 +100,7 @@ def create_app() -> FastAPI:
     app.include_router(fetch_logs_router)
     app.include_router(matches_router)
     app.include_router(notifications_router)
+    app.include_router(applications_router)
 
     return app
 

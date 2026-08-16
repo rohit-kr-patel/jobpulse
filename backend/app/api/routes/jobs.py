@@ -4,6 +4,7 @@ GET /jobs and GET /jobs/{id} are documented in
 docs/05_API_SPECIFICATION.md. POST /jobs/fetch is a manual trigger for
 the fetch pipeline built here in Phase 4; Phase 8 wires this same
 pipeline to a daily APScheduler run instead of requiring a manual call.
+GET /jobs excludes expired jobs by default (Phase 10).
 """
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -21,12 +22,15 @@ router = APIRouter(tags=["jobs"])
 @router.get("/jobs", response_model=list[JobResponse])
 def list_jobs(
     source: str | None = Query(None, description="Filter by source, e.g. 'greenhouse'"),
+    include_expired: bool = Query(False, description="Include jobs marked expired"),
     limit: int = Query(50, ge=1, le=200),
     offset: int = Query(0, ge=0),
     db: Session = Depends(get_db),
 ) -> list[JobResponse]:
-    """List stored jobs, most recently fetched first."""
-    jobs = job_service.list_jobs(db, source=source, limit=limit, offset=offset)
+    """List stored jobs, most recently fetched first. Excludes expired jobs by default."""
+    jobs = job_service.list_jobs(
+        db, source=source, include_expired=include_expired, limit=limit, offset=offset
+    )
     return [JobResponse.model_validate(job) for job in jobs]
 
 

@@ -20,3 +20,11 @@ class JobNotFoundError(Exception):
 
 class NotificationNotFoundError(Exception):
     """Raised when a requested notification id does not exist (for this user)."""
+
+
+class ApplicationNotFoundError(Exception):
+    """Raised when a requested application id does not exist (for this user)."""
+
+
+class DuplicateApplicationError(Exception):
+    """Raised when trying to save/track a job that's already tracked for this user."""

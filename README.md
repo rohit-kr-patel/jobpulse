@@ -101,7 +101,7 @@ JobPulse/
 - [x] Phase 7 – Matching Engine
 - [x] Phase 8 – Scheduler
 - [x] Phase 9 – Browser Notifications
-- [ ] Phase 10 – Application Tracker
+- [x] Phase 10 – Application Tracker
 - [ ] Phase 11 – Final Refactor
 
 ---
@@ -137,7 +137,7 @@ alembic upgrade head
 uvicorn app.main:app --reload
 ```
 
-Then check the health endpoint at `http://localhost:8000/health`, and open `frontend/dashboard.html` in a browser (or `index.html` for a lightweight landing page linking to it, `preferences.html`, and `resume-upload.html`).
+Then check the health endpoint at `http://localhost:8000/health`, and open `frontend/dashboard.html` in a browser (or `index.html` for a lightweight landing page linking to it, `preferences.html`, `resume-upload.html`, and `applications.html` for your tracked applications).
 
 To pull in jobs, set `GREENHOUSE_BOARD_TOKENS` and/or `LEVER_COMPANY_SLUGS` in `.env` (see the comments there). With `SCHEDULER_ENABLED=true` (the `.env.example` default), a fetch + ranking refresh runs automatically every day at `SCHEDULER_FETCH_HOUR:SCHEDULER_FETCH_MINUTE`; to trigger one immediately instead of waiting, call `curl -X POST http://localhost:8000/jobs/fetch`. Remotive and Arbeitnow need no configuration and will fetch regardless. Set your preferences first (`preferences.html`) so each run can also create notifications for newly-fetched top matches, visible in the dashboard's notification banner.
 
@@ -151,7 +151,7 @@ Project documentation is available in the `docs/` directory.
 
 # 📌 Current Status
 
-Version: **0.10.0**
+Version: **0.11.0**
 
 Current milestone:
 - Documentation complete
@@ -164,7 +164,8 @@ Current milestone:
 - Phase 7 (Matching Engine) complete
 - Phase 8 (Scheduler) complete
 - Phase 9 (Browser Notifications) complete
-- Ready to begin Phase 10
+- Phase 10 (Application Tracker) complete
+- Ready to begin Phase 11 (final phase)
 
 ---
 

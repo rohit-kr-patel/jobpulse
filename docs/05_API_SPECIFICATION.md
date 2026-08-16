@@ -59,17 +59,17 @@ Multipart upload, field name `file`. Accepts a single PDF (max size configured v
 ```
 `parsed_*` fields come from rule-based extraction (see `docs/08_RESUME_PARSER.md`) and are null/empty if nothing was found or parsing failed - this never fails the upload itself.
 
-Remaining endpoints (`/applications`) are implemented in a later phase.
+All endpoints from the original list above are now implemented - see Phase 10 below for `/applications`.
 
 ## Implemented (Phase 4)
 
 ### GET /jobs
-List stored jobs, most recently fetched first.
-- Query params: `source` (optional, e.g. `greenhouse`), `limit` (default 50, max 200), `offset` (default 0)
+List stored jobs, most recently fetched first. Excludes expired jobs by default (Phase 10).
+- Query params: `source` (optional, e.g. `greenhouse`), `include_expired` (default `false`), `limit` (default 50, max 200), `offset` (default 0)
 - 200: `list[JobResponse]`
 
 ### GET /jobs/{id}
-Return a single job by id.
+Return a single job by id. Not affected by expiry - loads regardless.
 - 200: `JobResponse`
 - 404: `{"detail": "No job found with id <id>"}`
 
@@ -85,6 +85,7 @@ Return a single job by id.
   "is_remote": true,
   "description": "Build our API...",
   "apply_url": "https://boards.greenhouse.io/acme/jobs/4020123",
+  "is_expired": false,
   "posted_at": "2026-08-01T16:00:00Z",
   "fetched_at": "2026-08-06T09:00:00Z"
 }
@@ -121,7 +122,7 @@ List recent job-fetch run history (one entry per source per run), most recent fi
 }
 ```
 
-**Note on `POST /applications`, `PATCH /applications/{id}`:** these appear in the original endpoint list above but are *not* implemented yet. They're owned by Phase 10 (Application Tracker), per that phase's explicit task list - see `tasks/PHASE_10_APPLICATION_TRACKER.md`. `GET /notifications` (also originally listed here) is now implemented - see Phase 9 below.
+**Note on `POST /applications`, `PATCH /applications/{id}`:** now implemented - see Phase 10 at the end of this document. `GET /notifications` (also originally listed here) was implemented in Phase 9, below.
 
 ## Implemented (Phase 7)
 
@@ -170,3 +171,36 @@ Mark a single notification as read. Not in the original endpoint list - added si
 ### POST /notifications/mark-all-read
 Mark every unread notification for the current user as read. Also not in the original list, added for the same reason.
 - 200: `{"updated": <count>}`
+
+## Implemented (Phase 10)
+
+### POST /applications
+Start tracking a job (default status `saved`).
+- Body: `{"job_id": 1, "status": "saved", "notes": null}` (`status`/`notes` optional)
+- 201: `ApplicationResponse`
+- 404: job doesn't exist
+- 409: this job is already tracked - use PATCH instead
+
+### PATCH /applications/{id}
+Partially update a tracked application's status and/or notes. `notes` omitted from the body leaves it unchanged; `notes: null` explicitly clears it.
+- 200: `ApplicationResponse`
+- 404: `{"detail": "No application found with id <id>"}`
+
+### GET /applications
+List the current user's tracked applications, most recently updated first - the application history view. Not in the original endpoint list - added since "application history" needs somewhere to view it.
+- Query params: `status` (optional: `saved`/`applied`/`rejected`)
+- 200: `list[ApplicationResponse]`
+
+**ApplicationResponse**
+```json
+{
+  "id": 1,
+  "job": { "...": "same shape as JobResponse" },
+  "status": "applied",
+  "notes": "Recruiter call scheduled",
+  "applied_at": "2026-08-13T10:00:00Z",
+  "rejected_at": null,
+  "created_at": "2026-08-12T09:00:00Z",
+  "updated_at": "2026-08-13T10:00:00Z"
+}
+```

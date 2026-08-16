@@ -21,11 +21,24 @@ def get_by_id(db: Session, job_id: int) -> Job | None:
     return db.get(Job, job_id)
 
 
-def list_jobs(db: Session, *, source: str | None = None, limit: int = 50, offset: int = 0) -> list[Job]:
-    """List jobs, most recently fetched first, optionally filtered by source."""
+def list_jobs(
+    db: Session,
+    *,
+    source: str | None = None,
+    include_expired: bool = False,
+    limit: int = 50,
+    offset: int = 0,
+) -> list[Job]:
+    """List jobs, most recently fetched first.
+
+    Excludes expired jobs by default - pass `include_expired=True` to
+    see them too (e.g. for a job the user already tracked before it expired).
+    """
     query = db.query(Job)
     if source is not None:
         query = query.filter(Job.source == source)
+    if not include_expired:
+        query = query.filter(Job.is_expired.is_(False))
     return (
         query.order_by(Job.fetched_at.desc(), Job.id.desc())
         .offset(offset)
@@ -56,3 +69,24 @@ def upsert(db: Session, *, source: str, external_id: str, values: dict) -> tuple
         setattr(existing, field_name, value)
     existing.fetched_at = now
     return existing, False
+
+
+def mark_stale_as_expired(db: Session, *, source: str, cutoff: datetime) -> int:
+    """Mark jobs of a source as expired if they haven't been re-fetched since `cutoff`.
+
+    Does not commit - callers batch-commit alongside that source's
+    upserts (see app/services/job_service.py). Returns the count marked.
+
+    Uses `synchronize_session=False`: the default in-memory evaluator
+    SQLAlchemy would otherwise use to update already-loaded objects in
+    this session can't compare naive vs. timezone-aware datetimes
+    (hit under SQLite, which doesn't store tzinfo - Postgres wouldn't
+    have this issue, but the fix is dialect-independent and simpler
+    either way). Callers holding an already-loaded Job that this
+    update affects should `db.refresh()` it to see the change.
+    """
+    return (
+        db.query(Job)
+        .filter(Job.source == source, Job.is_expired.is_(False), Job.fetched_at < cutoff)
+        .update({"is_expired": True}, synchronize_session=False)
+    )

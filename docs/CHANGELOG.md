@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.11.0 - Phase 10: Application Tracker
+- Added `applications` table (migration `0007`, chain-verified against a live SQLite engine on top of `0001`-`0006`): one row per `(user_id, job_id)`, status `saved`/`applied`/`rejected`, optional `notes`, `applied_at`/`rejected_at` set automatically on first transition.
+- Added `POST /applications` (404 if job missing, **409 if already tracked** - use PATCH instead, keeping create/update semantics unambiguous), `PATCH /applications/{id}` (distinguishes "notes omitted" from "notes explicitly null" by reading the raw request body), and `GET /applications` (not in the original spec - added for "application history", filterable by status).
+- Added expired-job detection: a new `is_expired` column on `jobs` (migration `0006`). After each source's fetch, any job of that source not re-fetched within `JOB_EXPIRE_AFTER_DAYS` (default 3) is marked expired; every job actually returned by a fetch is explicitly un-expired in the same run, so reposted jobs recover automatically. No changes needed to the fetchers themselves or fetch orchestration - built entirely on data already produced by earlier phases (`fetched_at`).
+- `GET /jobs` now excludes expired jobs by default (`include_expired=true` to see them); `GET /jobs/{id}` is unaffected.
+- Added the "Your tracking" section to `job-detail.html` (save/mark applied/mark rejected + notes) and a new `applications.html` "My Applications" history page, linked from the dashboard.
+- Added 22 new tests (124 total): application service/route tests (including the 409-on-duplicate-save case and the notes omitted-vs-null distinction) and expiry-detection tests (marks-stale, doesn't-mark-recent, un-expires-on-reappearance, `GET /jobs` default-exclusion). Frontend verified with the same jsdom-harness approach as Phases 6/9 (not shipped), including a check that the job-detail tracking flow doesn't create duplicate applications when clicking through Save → Mark Applied.
+- New `docs/18_APPLICATION_TRACKER.md`.
+
 ## v0.10.0 - Phase 9: Browser Notifications
 - Added `notifications` table (migration `0005`, chain-verified against a live SQLite engine on top of `0001`-`0004`): `user_id`, nullable `job_id`, a fully-formed `message` string, `is_read`, `created_at`.
 - Added `notification_service.create_notifications_for_new_top_matches`, wired into the scheduler's `run_daily_pipeline` (Phase 8) right after the ranking refresh, reusing its already-computed top matches. A job counts as "new" (notification-worthy) if `created_at` and `fetched_at` are within 60 seconds of each other; since `fetched_at` bumps on every re-fetch but `created_at` doesn't, this alone prevents re-notifying about the same job on subsequent days.

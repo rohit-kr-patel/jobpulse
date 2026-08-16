@@ -12,10 +12,15 @@ source's failure never rolls back another source's already-fetched
 jobs, and never blocks the whole run. Every run - per source - is
 recorded to `fetch_logs` in that same commit, giving visibility into
 fetch history over time (see app/repositories/fetch_log_repository.py).
+
+Expired-job detection (Phase 10, see docs/18_APPLICATION_TRACKER.md):
+every job returned by a fetch is (re-)marked not expired; any job of
+that source not re-fetched within `settings.job_expire_after_days` is
+marked expired in the same commit.
 """
 
 import logging
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 import httpx
 from sqlalchemy.orm import Session
@@ -48,6 +53,7 @@ def _normalized_job_to_values(job: NormalizedJob) -> dict:
         "description": job.description,
         "apply_url": job.apply_url,
         "posted_at": job.posted_at,
+        "is_expired": False,
     }
 
 
@@ -84,6 +90,11 @@ def _run_one_source(db: Session, fetcher_module, settings: Settings, client: htt
         )
         created += int(was_created)
         updated += int(not was_created)
+
+    expiry_cutoff = started_at - timedelta(days=settings.job_expire_after_days)
+    expired_count = job_repository.mark_stale_as_expired(db, source=source, cutoff=expiry_cutoff)
+    if expired_count:
+        logger.info("Marked %d stale job(s) as expired for source=%s", expired_count, source)
 
     finished_at = datetime.now(timezone.utc)
     fetch_log_repository.create(
@@ -122,9 +133,18 @@ def fetch_and_store_all(db: Session, settings: Settings) -> list[JobFetchSummary
     return summaries
 
 
-def list_jobs(db: Session, *, source: str | None = None, limit: int = 50, offset: int = 0) -> list[Job]:
+def list_jobs(
+    db: Session,
+    *,
+    source: str | None = None,
+    include_expired: bool = False,
+    limit: int = 50,
+    offset: int = 0,
+) -> list[Job]:
     """List stored jobs, most recently fetched first."""
-    return job_repository.list_jobs(db, source=source, limit=limit, offset=offset)
+    return job_repository.list_jobs(
+        db, source=source, include_expired=include_expired, limit=limit, offset=offset
+    )
 
 
 def get_job(db: Session, job_id: int) -> Job:

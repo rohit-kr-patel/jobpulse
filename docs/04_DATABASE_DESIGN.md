@@ -79,6 +79,7 @@ Remaining tables (`jobs`, `applications`, `notifications`, `fetch_logs`) are int
 | fetched_at | timestamptz, not null | when we last fetched this job; bumped on every re-fetch |
 | created_at | timestamptz, not null | server default now() |
 | updated_at | timestamptz, not null | server default now(), updated on write |
+| is_expired | boolean, not null | Phase 10 - default false; see the `applications` section below for the detection rule |
 
 Unique constraint on `(source, external_id)` - the deduplication key. See `docs/07_JOB_FETCHER_DESIGN.md` for what this does and doesn't catch.
 
@@ -111,4 +112,17 @@ Written by `app/services/job_service.fetch_and_store_all` on every run (currentl
 
 Created by `notification_service.create_notifications_for_new_top_matches`, called from the scheduler's daily pipeline right after the ranking refresh - see `docs/10_NOTIFICATION_SYSTEM.md`.
 
-**Note:** `applications` is *not* built yet, despite being listed in the original table list above and referenced (unassigned) in `docs/05_API_SPECIFICATION.md`. It's explicitly owned by Phase 10 ("Application Tracker": save/applied/rejected/expired/history) - see `tasks/PHASE_10_APPLICATION_TRACKER.md`.
+### applications (Phase 10)
+| Column | Type | Notes |
+|---|---|---|
+| id | integer, PK | |
+| user_id | integer, FK -> users.id (ON DELETE CASCADE), indexed | |
+| job_id | integer, FK -> jobs.id (ON DELETE CASCADE), indexed | |
+| status | varchar(20), not null | one of: saved, applied, rejected |
+| notes | text, nullable | free-text |
+| applied_at | timestamptz, nullable | set the first time status becomes `applied` |
+| rejected_at | timestamptz, nullable | set the first time status becomes `rejected` |
+| created_at | timestamptz, not null | server default now() |
+| updated_at | timestamptz, not null | server default now(), updated on write |
+
+Unique constraint on `(user_id, job_id)` - one tracked application per job per user. See `docs/18_APPLICATION_TRACKER.md` for the full design, including expired-job detection (a new `is_expired` column on `jobs`, not a new table).

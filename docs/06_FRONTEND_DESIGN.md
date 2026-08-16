@@ -45,6 +45,14 @@ Reads `?id=` from the URL, fetches `GET /jobs/{id}`, and renders the full (untru
 
 The component deferred from Phase 6. Polls `GET /notifications?unread_only=true` every 60 seconds while the dashboard tab is open; renders a dismissible banner listing each unread notification (linking to its job), a "Mark all as read" action, and - only when the browser's Notification permission hasn't been decided yet - an explicit "Enable browser notifications" button (consent-first, not an auto-prompt on page load). Newly-seen notifications also fire a native `Notification`, tracked client-side by id so re-polling never re-fires the same alert; clicking a fired notification focuses the tab and navigates to the job. See `docs/10_NOTIFICATION_SYSTEM.md` for why this is polling + the Notification API rather than true push.
 
+### Application Tracking (`job-detail.html`, `js/job-detail.js`) - Phase 10
+
+A "Your tracking" section on the job detail page: current status (with a relative-time note once applied/rejected), three buttons - Save / Mark Applied / Mark Rejected, the active one disabled - and a notes textarea. There's no "get application by job id" endpoint, so like the dashboard's job list, this fetches the bounded `GET /applications` list and matches client-side by job id. An "expired" badge appears next to the source tag for jobs marked expired.
+
+### My Applications (`applications.html`, `js/applications.js`) - Phase 10
+
+The application history view - not one of the five pages originally listed above, added because "application history" is an explicit Phase 10 task with nowhere else to live. Every tracked application, filterable by status, each showing the job, status, notes preview, and a saved/applied/rejected timeline, linking back to its job detail page.
+
 ### Known limitation
 
 The dashboard fetches only the 200 most recent jobs (`GET /jobs`'s max `limit`) and filters/searches entirely client-side - there's no server-side search or pagination-aware filtering yet. Fine at V1's personal, single-user scale; would need a real search/filter query param on `GET /jobs` if the job count grows meaningfully past a few hundred.

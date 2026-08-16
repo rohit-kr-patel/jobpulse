@@ -19,6 +19,7 @@ class JobResponse(BaseModel):
     is_remote: bool
     description: str
     apply_url: str
+    is_expired: bool
     posted_at: datetime | None
     fetched_at: datetime
 

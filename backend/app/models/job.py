@@ -6,6 +6,9 @@ Stores normalized job postings fetched from external sources
 updates the existing row instead of creating a duplicate. Cross-source
 duplicates (the same job posted on two different boards) are not
 detected - see docs/07_JOB_FETCHER_DESIGN.md for known limitations.
+
+`is_expired` is set by app/services/job_service after each fetch run -
+see docs/18_APPLICATION_TRACKER.md for the detection rule.
 """
 
 from datetime import datetime
@@ -34,6 +37,7 @@ class Job(Base):
     is_remote: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     description: Mapped[str] = mapped_column(Text, nullable=False, default="")
     apply_url: Mapped[str] = mapped_column(String(2048), nullable=False)
+    is_expired: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
     posted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     fetched_at: Mapped[datetime] = mapped_column(
