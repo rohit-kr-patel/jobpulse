@@ -141,7 +141,13 @@ def test_upload_resume_rejects_file_without_pdf_magic_bytes(client, tmp_path):
     try:
         response = client.post(
             "/resume/upload",
-            files={"file": ("resume.pdf", b"just some text, not a real pdf", "application/pdf")},
+            files={
+                "file": (
+                    "resume.pdf",
+                    b"just some text, not a real pdf",
+                    "application/pdf",
+                )
+            },
         )
     finally:
         del app.dependency_overrides[get_settings]

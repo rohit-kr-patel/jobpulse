@@ -1,6 +1,6 @@
 """Tests for expired-job detection (Phase 10) in app.services.job_service."""
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import pytest
 
@@ -30,8 +30,8 @@ def _seed_stale_job(db_session, *, external_id: str, days_old: int) -> Job:
         description="An old job posting.",
         apply_url="https://example.com",
         posted_at=None,
-        fetched_at=datetime.now(timezone.utc) - timedelta(days=days_old),
-        created_at=datetime.now(timezone.utc) - timedelta(days=days_old),
+        fetched_at=datetime.now(UTC) - timedelta(days=days_old),
+        created_at=datetime.now(UTC) - timedelta(days=days_old),
     )
     db_session.add(job)
     db_session.commit()

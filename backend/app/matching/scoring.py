@@ -185,7 +185,7 @@ def rank_jobs(profile: MatchProfile, jobs: list[Job], settings: Settings) -> lis
     text_similarities = _compute_text_similarities(_profile_text(profile), job_texts)
 
     results = []
-    for job, job_text, text_similarity in zip(jobs, job_texts, text_similarities):
+    for job, job_text, text_similarity in zip(jobs, job_texts, text_similarities, strict=True):
         skill_score = _skill_score(profile.skills, job_text)
         role_score = _role_score(profile.target_roles, job.title)
         location_score = _location_score(profile.locations, job.location)

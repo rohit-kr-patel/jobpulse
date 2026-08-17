@@ -1,0 +1,20 @@
+[tool.black]
+line-length = 100
+target-version = ["py312"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = ["alembic/versions"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "BLE"]
+ignore = [
+    "B008",  # FastAPI's Depends()/Query() in argument defaults is the required, idiomatic pattern
+    "UP042", # class Foo(str, enum.Enum) works correctly and is extensively tested (DB storage via
+             # Enum(native_enum=False), Pydantic validation); enum.StrEnum has subtly different
+             # __str__/repr behavior - not worth the risk to "modernize" in a final hardening pass.
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["app"]

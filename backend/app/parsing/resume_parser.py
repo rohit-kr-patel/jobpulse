@@ -58,16 +58,11 @@ def extract_skills(text: str) -> list[str]:
     matched = [
         skill
         for skill in KNOWN_SKILLS
-        if contains_keyword(
-            text, skill, case_sensitive=skill in _CASE_SENSITIVE_SKILL_KEYWORDS
-        )
+        if contains_keyword(text, skill, case_sensitive=skill in _CASE_SENSITIVE_SKILL_KEYWORDS)
     ]
 
     def is_shadowed(skill: str) -> bool:
-        return any(
-            other != skill and skill.lower() in other.lower()
-            for other in matched
-        )
+        return any(other != skill and skill.lower() in other.lower() for other in matched)
 
     return [skill for skill in matched if not is_shadowed(skill)]
 

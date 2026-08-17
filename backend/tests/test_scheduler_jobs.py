@@ -6,7 +6,7 @@ same way tests/conftest.py's `client` fixture does, since this pipeline
 opens its own DB session rather than using the `get_db` dependency.
 """
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from app.core.config import Settings
 from app.fetchers.base import NormalizedJob
@@ -24,13 +24,17 @@ def _make_job(external_id: str, title: str) -> NormalizedJob:
         is_remote=True,
         description=f"{title} role. Python and Docker required.",
         apply_url=f"https://example.com/{external_id}",
-        posted_at=datetime(2026, 8, 1, tzinfo=timezone.utc),
+        posted_at=datetime(2026, 8, 1, tzinfo=UTC),
     )
 
 
-def test_run_daily_pipeline_fetches_jobs_and_skips_ranking_without_preferences(monkeypatch, client, caplog):
+def test_run_daily_pipeline_fetches_jobs_and_skips_ranking_without_preferences(
+    monkeypatch, client, caplog
+):
     monkeypatch.setattr(
-        job_service.greenhouse_fetcher, "fetch", lambda *_: [_make_job("1", "Backend Engineer")]
+        job_service.greenhouse_fetcher,
+        "fetch",
+        lambda *_: [_make_job("1", "Backend Engineer")],
     )
     monkeypatch.setattr(job_service.lever_fetcher, "fetch", lambda *_: [])
     monkeypatch.setattr(job_service.remotive_fetcher, "fetch", lambda *_: [])
@@ -59,7 +63,9 @@ def test_run_daily_pipeline_refreshes_rankings_once_preferences_exist(monkeypatc
     )
 
     monkeypatch.setattr(
-        job_service.greenhouse_fetcher, "fetch", lambda *_: [_make_job("1", "Backend Engineer")]
+        job_service.greenhouse_fetcher,
+        "fetch",
+        lambda *_: [_make_job("1", "Backend Engineer")],
     )
     monkeypatch.setattr(job_service.lever_fetcher, "fetch", lambda *_: [])
     monkeypatch.setattr(job_service.remotive_fetcher, "fetch", lambda *_: [])

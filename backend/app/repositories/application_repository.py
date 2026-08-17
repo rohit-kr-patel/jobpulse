@@ -1,6 +1,6 @@
 """Data access for the Application model."""
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from sqlalchemy.orm import Session
 
@@ -26,7 +26,11 @@ def get_by_user_and_job(db: Session, user_id: int, job_id: int) -> Application |
 
 
 def list_for_user(
-    db: Session, user_id: int, *, status: ApplicationStatus | None = None, limit: int = 100
+    db: Session,
+    user_id: int,
+    *,
+    status: ApplicationStatus | None = None,
+    limit: int = 100,
 ) -> list[Application]:
     """List a user's tracked applications, most recently updated first."""
     query = db.query(Application).filter(Application.user_id == user_id)
@@ -36,10 +40,15 @@ def list_for_user(
 
 
 def create(
-    db: Session, *, user_id: int, job_id: int, status: ApplicationStatus, notes: str | None
+    db: Session,
+    *,
+    user_id: int,
+    job_id: int,
+    status: ApplicationStatus,
+    notes: str | None,
 ) -> Application:
     """Insert a new application row and commit."""
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     application = Application(
         user_id=user_id,
         job_id=job_id,
@@ -68,7 +77,7 @@ def update(
     """
     if status is not None and status != application.status:
         application.status = status
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         if status == ApplicationStatus.APPLIED:
             application.applied_at = now
         elif status == ApplicationStatus.REJECTED:

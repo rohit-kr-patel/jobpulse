@@ -9,7 +9,7 @@ across dialects (e.g. SQLite in tests).
 import enum
 from datetime import datetime
 
-from sqlalchemy import DateTime, Enum, ForeignKey, Integer, JSON, func
+from sqlalchemy import JSON, DateTime, Enum, ForeignKey, Integer, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.session import Base

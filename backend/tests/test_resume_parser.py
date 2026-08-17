@@ -28,7 +28,13 @@ def _build_pdf_bytes(text: str) -> bytes:
 
 def test_extract_skills_finds_known_skills():
     text = "Experienced with Python, FastAPI, PostgreSQL, Docker, and React.js."
-    assert set(extract_skills(text)) == {"Python", "FastAPI", "PostgreSQL", "Docker", "React.js"}
+    assert set(extract_skills(text)) == {
+        "Python",
+        "FastAPI",
+        "PostgreSQL",
+        "Docker",
+        "React.js",
+    }
 
 
 def test_extract_skills_does_not_match_substrings_of_longer_skills():

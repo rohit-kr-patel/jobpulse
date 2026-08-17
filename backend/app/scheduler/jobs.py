@@ -85,4 +85,7 @@ def _refresh_rankings(db: Session, settings: Settings) -> None:
     created_notifications = notification_service.create_notifications_for_new_top_matches(
         db, settings, matches
     )
-    logger.info("Created %d notification(s) for newly-fetched top matches", len(created_notifications))
+    logger.info(
+        "Created %d notification(s) for newly-fetched top matches",
+        len(created_notifications),
+    )

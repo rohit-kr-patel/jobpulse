@@ -12,7 +12,10 @@ def test_start_scheduler_is_a_noop_when_disabled():
 
 def test_start_scheduler_starts_and_registers_the_daily_job_when_enabled():
     settings = Settings(
-        scheduler_enabled=True, scheduler_fetch_hour=6, scheduler_fetch_minute=30, scheduler_timezone="UTC"
+        scheduler_enabled=True,
+        scheduler_fetch_hour=6,
+        scheduler_fetch_minute=30,
+        scheduler_timezone="UTC",
     )
 
     scheduler = start_scheduler(settings)
@@ -26,7 +29,9 @@ def test_start_scheduler_starts_and_registers_the_daily_job_when_enabled():
 
 
 def test_build_scheduler_uses_configured_hour_and_minute():
-    settings = Settings(scheduler_fetch_hour=14, scheduler_fetch_minute=45, scheduler_timezone="UTC")
+    settings = Settings(
+        scheduler_fetch_hour=14, scheduler_fetch_minute=45, scheduler_timezone="UTC"
+    )
 
     scheduler = build_scheduler(settings)
     job = scheduler.get_job("daily_job_fetch_and_rank")

@@ -5,7 +5,7 @@ real network access - HTTP-shape correctness is covered separately in
 tests/test_*_fetcher.py.
 """
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
 
@@ -26,7 +26,7 @@ def _make_job(external_id: str, title: str, source: str = "greenhouse") -> Norma
         is_remote=True,
         description="A great job.",
         apply_url=f"https://example.com/jobs/{external_id}",
-        posted_at=datetime(2026, 8, 1, tzinfo=timezone.utc),
+        posted_at=datetime(2026, 8, 1, tzinfo=UTC),
     )
 
 
@@ -41,8 +41,14 @@ def db_session(client):  # noqa: ARG001 - reuse the `client` fixture's DB setup
 
 
 def test_fetch_and_store_all_creates_and_updates_across_two_runs(monkeypatch, db_session):
-    first_run_jobs = [_make_job("1", "Backend Engineer"), _make_job("2", "Frontend Engineer")]
-    second_run_jobs = [_make_job("1", "Senior Backend Engineer"), _make_job("3", "Data Engineer")]
+    first_run_jobs = [
+        _make_job("1", "Backend Engineer"),
+        _make_job("2", "Frontend Engineer"),
+    ]
+    second_run_jobs = [
+        _make_job("1", "Senior Backend Engineer"),
+        _make_job("3", "Data Engineer"),
+    ]
 
     calls = {"count": 0}
 
@@ -82,7 +88,11 @@ def test_fetch_and_store_all_isolates_a_failing_source(monkeypatch, db_session):
         raise RuntimeError("simulated network failure")
 
     monkeypatch.setattr(job_service.greenhouse_fetcher, "fetch", broken_fetch)
-    monkeypatch.setattr(job_service.lever_fetcher, "fetch", lambda *_: [_make_job("l1", "Lever Job", source="lever")])
+    monkeypatch.setattr(
+        job_service.lever_fetcher,
+        "fetch",
+        lambda *_: [_make_job("l1", "Lever Job", source="lever")],
+    )
     monkeypatch.setattr(job_service.remotive_fetcher, "fetch", lambda *_: [])
     monkeypatch.setattr(job_service.arbeitnow_fetcher, "fetch", lambda *_: [])
 
@@ -102,10 +112,14 @@ def test_fetch_and_store_all_isolates_a_failing_source(monkeypatch, db_session):
 
 def test_list_jobs_filters_by_source(monkeypatch, db_session):
     monkeypatch.setattr(
-        job_service.greenhouse_fetcher, "fetch", lambda *_: [_make_job("g1", "GH Job", source="greenhouse")]
+        job_service.greenhouse_fetcher,
+        "fetch",
+        lambda *_: [_make_job("g1", "GH Job", source="greenhouse")],
     )
     monkeypatch.setattr(
-        job_service.lever_fetcher, "fetch", lambda *_: [_make_job("l1", "Lever Job", source="lever")]
+        job_service.lever_fetcher,
+        "fetch",
+        lambda *_: [_make_job("l1", "Lever Job", source="lever")],
     )
     monkeypatch.setattr(job_service.remotive_fetcher, "fetch", lambda *_: [])
     monkeypatch.setattr(job_service.arbeitnow_fetcher, "fetch", lambda *_: [])
@@ -126,7 +140,10 @@ def test_fetch_and_store_all_records_a_fetch_log_per_source(monkeypatch, db_sess
     monkeypatch.setattr(
         job_service.greenhouse_fetcher,
         "fetch",
-        lambda *_: [_make_job("1", "Backend Engineer"), _make_job("2", "Frontend Engineer")],
+        lambda *_: [
+            _make_job("1", "Backend Engineer"),
+            _make_job("2", "Frontend Engineer"),
+        ],
     )
     monkeypatch.setattr(job_service.lever_fetcher, "fetch", lambda *_: [])
     monkeypatch.setattr(job_service.remotive_fetcher, "fetch", lambda *_: [])
@@ -164,7 +181,9 @@ def test_fetch_and_store_all_records_a_failed_fetch_log(monkeypatch, db_session)
 
 
 def test_list_fetch_logs_filters_by_source(monkeypatch, db_session):
-    monkeypatch.setattr(job_service.greenhouse_fetcher, "fetch", lambda *_: [_make_job("1", "GH Job")])
+    monkeypatch.setattr(
+        job_service.greenhouse_fetcher, "fetch", lambda *_: [_make_job("1", "GH Job")]
+    )
     monkeypatch.setattr(job_service.lever_fetcher, "fetch", lambda *_: [])
     monkeypatch.setattr(job_service.remotive_fetcher, "fetch", lambda *_: [])
     monkeypatch.setattr(job_service.arbeitnow_fetcher, "fetch", lambda *_: [])

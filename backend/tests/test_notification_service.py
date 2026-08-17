@@ -1,6 +1,6 @@
 """Tests for app.services.notification_service."""
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import pytest
 
@@ -54,7 +54,7 @@ def _set_preferences(client) -> None:
 
 def test_create_notifications_only_for_newly_fetched_jobs(client, db_session):
     _set_preferences(client)
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     _seed_job(db_session, external_id="new", title="New Job", fetched_at=now, created_at=now)
     _seed_job(
@@ -76,13 +76,15 @@ def test_create_notifications_only_for_newly_fetched_jobs(client, db_session):
 
 
 def test_create_notifications_is_noop_for_empty_matches(db_session):
-    created = notification_service.create_notifications_for_new_top_matches(db_session, Settings(), [])
+    created = notification_service.create_notifications_for_new_top_matches(
+        db_session, Settings(), []
+    )
     assert created == []
 
 
 def test_list_notifications_filters_unread_only(client, db_session):
     _set_preferences(client)
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     _seed_job(db_session, external_id="1", title="Job One", fetched_at=now, created_at=now)
     _seed_job(db_session, external_id="2", title="Job Two", fetched_at=now, created_at=now)
 
@@ -105,7 +107,7 @@ def test_mark_notification_read_raises_for_missing_id(db_session):
 
 def test_mark_all_notifications_read_updates_every_unread_one(client, db_session):
     _set_preferences(client)
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     _seed_job(db_session, external_id="1", title="Job One", fetched_at=now, created_at=now)
     _seed_job(db_session, external_id="2", title="Job Two", fetched_at=now, created_at=now)
 

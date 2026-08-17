@@ -9,7 +9,11 @@ unambiguous rather than making POST silently upsert.
 from sqlalchemy.orm import Session
 
 from app.core.config import Settings
-from app.core.exceptions import ApplicationNotFoundError, DuplicateApplicationError, JobNotFoundError
+from app.core.exceptions import (
+    ApplicationNotFoundError,
+    DuplicateApplicationError,
+    JobNotFoundError,
+)
 from app.models.application import Application, ApplicationStatus
 from app.repositories import application_repository, job_repository
 from app.repositories.application_repository import _UNSET
@@ -34,7 +38,11 @@ def save_job(db: Session, settings: Settings, payload: ApplicationCreateRequest)
         )
 
     return application_repository.create(
-        db, user_id=user_id, job_id=payload.job_id, status=payload.status, notes=payload.notes
+        db,
+        user_id=user_id,
+        job_id=payload.job_id,
+        status=payload.status,
+        notes=payload.notes,
     )
 
 

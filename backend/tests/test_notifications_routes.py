@@ -52,8 +52,8 @@ def test_mark_notification_read_returns_404_for_missing_id(client):
 
 
 def test_full_notification_lifecycle_via_scheduler_pipeline(client, monkeypatch):
-    from app.scheduler import jobs as scheduler_jobs
     from app.core.config import Settings
+    from app.scheduler import jobs as scheduler_jobs
 
     _set_preferences(client)
     _fetch_one_job(client, monkeypatch)
@@ -77,8 +77,8 @@ def test_full_notification_lifecycle_via_scheduler_pipeline(client, monkeypatch)
 
 
 def test_mark_all_read_endpoint(client, monkeypatch):
-    from app.scheduler import jobs as scheduler_jobs
     from app.core.config import Settings
+    from app.scheduler import jobs as scheduler_jobs
 
     _set_preferences(client)
     _fetch_one_job(client, monkeypatch)

@@ -19,11 +19,15 @@ class PreferencesRequest(BaseModel):
     """Payload for creating or updating a user's preferences."""
 
     target_roles: list[str] = Field(
-        ..., min_length=1, description="Job titles the user is targeting, e.g. 'Backend Engineer'"
+        ...,
+        min_length=1,
+        description="Job titles the user is targeting, e.g. 'Backend Engineer'",
     )
     skills: list[str] = Field(..., min_length=1, description="Skills/technologies the user knows")
     locations: list[str] = Field(
-        ..., min_length=1, description="Preferred job locations, e.g. 'Bangalore', 'Remote'"
+        ...,
+        min_length=1,
+        description="Preferred job locations, e.g. 'Bangalore', 'Remote'",
     )
     experience_years: int = Field(..., ge=0, le=60, description="Years of professional experience")
     min_ctc: int | None = Field(None, ge=0, description="Minimum acceptable annual CTC")

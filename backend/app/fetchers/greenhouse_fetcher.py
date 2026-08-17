@@ -13,7 +13,13 @@ import httpx
 
 from app.core.config import Settings
 from app.fetchers.base import NormalizedJob
-from app.fetchers.utils import display_company_name, html_to_text, looks_remote, parse_csv_list, parse_iso_datetime
+from app.fetchers.utils import (
+    display_company_name,
+    html_to_text,
+    looks_remote,
+    parse_csv_list,
+    parse_iso_datetime,
+)
 
 logger = logging.getLogger(__name__)
 

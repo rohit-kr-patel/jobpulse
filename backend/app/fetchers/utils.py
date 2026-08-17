@@ -5,7 +5,7 @@ malformed or unexpected values, so every parser here fails soft
 (returns None / a safe default) rather than raising.
 """
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from bs4 import BeautifulSoup
 
@@ -54,7 +54,7 @@ def parse_iso_datetime(raw_value: str | None) -> datetime | None:
     except ValueError:
         return None
     if parsed.tzinfo is None:
-        parsed = parsed.replace(tzinfo=timezone.utc)
+        parsed = parsed.replace(tzinfo=UTC)
     return parsed
 
 
@@ -63,7 +63,7 @@ def parse_epoch_seconds(raw_value: int | float | None) -> datetime | None:
     if raw_value is None:
         return None
     try:
-        return datetime.fromtimestamp(raw_value, tz=timezone.utc)
+        return datetime.fromtimestamp(raw_value, tz=UTC)
     except (ValueError, OSError, OverflowError):
         return None
 

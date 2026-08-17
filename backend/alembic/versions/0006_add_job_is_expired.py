@@ -5,6 +5,7 @@ Revises: 0005
 Create Date: 2026-08-13
 
 """
+
 from typing import Sequence, Union
 
 from alembic import op
@@ -19,7 +20,10 @@ depends_on: Union[str, Sequence[str], None] = None
 
 def upgrade() -> None:
     op.add_column(
-        "jobs", sa.Column("is_expired", sa.Boolean(), nullable=False, server_default=sa.false())
+        "jobs",
+        sa.Column(
+            "is_expired", sa.Boolean(), nullable=False, server_default=sa.false()
+        ),
     )
 
 

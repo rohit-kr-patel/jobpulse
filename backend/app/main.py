@@ -7,8 +7,9 @@ resume parsing (no new routes). Phase 4 added job fetching/listing.
 Phase 5 added fetch-log history. Phase 6 added the frontend dashboard
 (no new backend routes). Phase 7 added job matching. Phase 8 added the
 daily scheduler (disabled by default - see docs/TODO.md). Phase 9
-added notifications. Phase 10 adds the application tracker and
-expired-job detection.
+added notifications. Phase 10 added the application tracker and
+expired-job detection. Phase 11 is a formatting/lint/docs hardening
+pass (see backend/pyproject.toml) - no behavior changes.
 """
 
 import logging
@@ -67,7 +68,7 @@ def create_app() -> FastAPI:
     app = FastAPI(
         title=settings.app_name,
         description="Personal job assistant: fetch, rank, and track jobs daily.",
-        version="0.11.0",
+        version="1.0.0",
         lifespan=lifespan,
     )
 

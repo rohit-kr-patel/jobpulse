@@ -23,9 +23,7 @@ class Job(Base):
     """A single normalized job posting from an external source."""
 
     __tablename__ = "jobs"
-    __table_args__ = (
-        UniqueConstraint("source", "external_id", name="uq_jobs_source_external_id"),
-    )
+    __table_args__ = (UniqueConstraint("source", "external_id", name="uq_jobs_source_external_id"),)
 
     id: Mapped[int] = mapped_column(primary_key=True)
     source: Mapped[str] = mapped_column(String(50), nullable=False, index=True)

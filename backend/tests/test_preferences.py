@@ -57,7 +57,11 @@ def test_post_preferences_upserts_rather_than_duplicating(client):
         "experience_years": 1,
         "work_mode": "remote",
     }
-    second = {**first, "experience_years": 3, "target_roles": ["Senior Backend Engineer"]}
+    second = {
+        **first,
+        "experience_years": 3,
+        "target_roles": ["Senior Backend Engineer"],
+    }
 
     client.post("/preferences", json=first)
     response = client.post("/preferences", json=second)

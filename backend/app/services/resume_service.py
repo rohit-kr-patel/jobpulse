@@ -8,7 +8,7 @@ are simply left empty/null.
 """
 
 import logging
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from uuid import uuid4
 
@@ -27,7 +27,9 @@ _PDF_CONTENT_TYPE = "application/pdf"
 _PDF_MAGIC_BYTES = b"%PDF-"
 
 
-def _validate_file(filename: str | None, content_type: str | None, contents: bytes, settings: Settings) -> None:
+def _validate_file(
+    filename: str | None, content_type: str | None, contents: bytes, settings: Settings
+) -> None:
     """Validate the uploaded file is a non-empty, correctly-sized PDF.
 
     Raises:
@@ -47,9 +49,7 @@ def _validate_file(filename: str | None, content_type: str | None, contents: byt
 
     max_bytes = settings.resume_max_size_mb * 1024 * 1024
     if len(contents) > max_bytes:
-        raise InvalidResumeFileError(
-            f"File exceeds the {settings.resume_max_size_mb}MB size limit"
-        )
+        raise InvalidResumeFileError(f"File exceeds the {settings.resume_max_size_mb}MB size limit")
 
 
 def _safe_parse(contents: bytes) -> ParsedResumeData:
@@ -110,5 +110,5 @@ async def upload_resume(
         parsed_skills=parsed.skills,
         parsed_education=parsed.education,
         parsed_experience_years=parsed.experience_years,
-        parsed_at=datetime.now(timezone.utc),
+        parsed_at=datetime.now(UTC),
     )

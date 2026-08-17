@@ -1,0 +1,5 @@
+# Dev tooling only - not needed to run the app, just to develop it.
+# Install with: pip install -r requirements-dev.txt -r requirements.txt
+
+black==26.5.1
+ruff==0.16.3

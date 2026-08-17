@@ -10,7 +10,11 @@ _SAMPLE_RESPONSE = [
     {
         "id": "abc-123",
         "text": "Senior Backend Engineer",
-        "categories": {"location": "Remote", "team": "Engineering", "commitment": "Full-time"},
+        "categories": {
+            "location": "Remote",
+            "team": "Engineering",
+            "commitment": "Full-time",
+        },
         "descriptionPlain": "Join our backend team.",
         "applyUrl": "https://jobs.lever.co/acme/abc-123/apply",
         "hostedUrl": "https://jobs.lever.co/acme/abc-123",
@@ -19,7 +23,11 @@ _SAMPLE_RESPONSE = [
     {
         "id": "def-456",
         "text": "Product Designer",
-        "categories": {"location": "New York, NY", "team": "Design", "commitment": "Full-time"},
+        "categories": {
+            "location": "New York, NY",
+            "team": "Design",
+            "commitment": "Full-time",
+        },
         "descriptionPlain": "Design delightful things.",
         "applyUrl": "https://jobs.lever.co/acme/def-456/apply",
         "hostedUrl": "https://jobs.lever.co/acme/def-456",

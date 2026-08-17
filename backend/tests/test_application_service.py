@@ -3,7 +3,11 @@
 import pytest
 
 from app.core.config import Settings
-from app.core.exceptions import ApplicationNotFoundError, DuplicateApplicationError, JobNotFoundError
+from app.core.exceptions import (
+    ApplicationNotFoundError,
+    DuplicateApplicationError,
+    JobNotFoundError,
+)
 from app.models.application import ApplicationStatus
 from app.models.job import Job
 from app.schemas.application import ApplicationCreateRequest, ApplicationUpdateRequest
@@ -75,7 +79,9 @@ def test_save_job_with_applied_status_sets_applied_at(db_session):
 
 def test_update_application_changes_status_and_sets_timestamp(db_session):
     job = _seed_job(db_session)
-    application = application_service.save_job(db_session, Settings(), ApplicationCreateRequest(job_id=job.id))
+    application = application_service.save_job(
+        db_session, Settings(), ApplicationCreateRequest(job_id=job.id)
+    )
 
     updated = application_service.update_application(
         db_session,
@@ -93,7 +99,9 @@ def test_update_application_changes_status_and_sets_timestamp(db_session):
 def test_update_application_notes_omitted_leaves_notes_unchanged(db_session):
     job = _seed_job(db_session)
     application = application_service.save_job(
-        db_session, Settings(), ApplicationCreateRequest(job_id=job.id, notes="original note")
+        db_session,
+        Settings(),
+        ApplicationCreateRequest(job_id=job.id, notes="original note"),
     )
 
     updated = application_service.update_application(
@@ -110,7 +118,9 @@ def test_update_application_notes_omitted_leaves_notes_unchanged(db_session):
 def test_update_application_notes_explicitly_null_clears_notes(db_session):
     job = _seed_job(db_session)
     application = application_service.save_job(
-        db_session, Settings(), ApplicationCreateRequest(job_id=job.id, notes="original note")
+        db_session,
+        Settings(),
+        ApplicationCreateRequest(job_id=job.id, notes="original note"),
     )
 
     updated = application_service.update_application(
@@ -127,7 +137,11 @@ def test_update_application_notes_explicitly_null_clears_notes(db_session):
 def test_update_application_raises_for_missing_id(db_session):
     with pytest.raises(ApplicationNotFoundError):
         application_service.update_application(
-            db_session, Settings(), 999999, ApplicationUpdateRequest(), notes_provided=False
+            db_session,
+            Settings(),
+            999999,
+            ApplicationUpdateRequest(),
+            notes_provided=False,
         )
 
 
@@ -135,10 +149,14 @@ def test_list_applications_filters_by_status(db_session):
     job1 = _seed_job(db_session, "1")
     job2 = _seed_job(db_session, "2")
     application_service.save_job(
-        db_session, Settings(), ApplicationCreateRequest(job_id=job1.id, status=ApplicationStatus.SAVED)
+        db_session,
+        Settings(),
+        ApplicationCreateRequest(job_id=job1.id, status=ApplicationStatus.SAVED),
     )
     application_service.save_job(
-        db_session, Settings(), ApplicationCreateRequest(job_id=job2.id, status=ApplicationStatus.APPLIED)
+        db_session,
+        Settings(),
+        ApplicationCreateRequest(job_id=job2.id, status=ApplicationStatus.APPLIED),
     )
 
     all_apps = application_service.list_applications(db_session, Settings())

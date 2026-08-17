@@ -9,17 +9,27 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy.orm import Session
 
 from app.core.config import Settings, get_settings
-from app.core.exceptions import ApplicationNotFoundError, DuplicateApplicationError, JobNotFoundError
+from app.core.exceptions import (
+    ApplicationNotFoundError,
+    DuplicateApplicationError,
+    JobNotFoundError,
+)
 from app.db.session import get_db
 from app.models.application import ApplicationStatus
-from app.schemas.application import ApplicationCreateRequest, ApplicationResponse, ApplicationUpdateRequest
+from app.schemas.application import (
+    ApplicationCreateRequest,
+    ApplicationResponse,
+    ApplicationUpdateRequest,
+)
 from app.services import application_service
 
 router = APIRouter(tags=["applications"])
 
 
 @router.post(
-    "/applications", response_model=ApplicationResponse, status_code=status.HTTP_201_CREATED
+    "/applications",
+    response_model=ApplicationResponse,
+    status_code=status.HTTP_201_CREATED,
 )
 def save_job(
     payload: ApplicationCreateRequest,

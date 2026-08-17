@@ -20,14 +20,19 @@ marked expired in the same commit.
 """
 
 import logging
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import httpx
 from sqlalchemy.orm import Session
 
 from app.core.config import Settings
 from app.core.exceptions import JobNotFoundError
-from app.fetchers import arbeitnow_fetcher, greenhouse_fetcher, lever_fetcher, remotive_fetcher
+from app.fetchers import (
+    arbeitnow_fetcher,
+    greenhouse_fetcher,
+    lever_fetcher,
+    remotive_fetcher,
+)
 from app.fetchers.base import NormalizedJob
 from app.models.fetch_log import FetchLog
 from app.models.job import Job
@@ -57,15 +62,17 @@ def _normalized_job_to_values(job: NormalizedJob) -> dict:
     }
 
 
-def _run_one_source(db: Session, fetcher_module, settings: Settings, client: httpx.Client) -> JobFetchSummary:
+def _run_one_source(
+    db: Session, fetcher_module, settings: Settings, client: httpx.Client
+) -> JobFetchSummary:
     source = fetcher_module.SOURCE
-    started_at = datetime.now(timezone.utc)
+    started_at = datetime.now(UTC)
 
     try:
         normalized_jobs = fetcher_module.fetch(settings, client)
     except Exception:  # noqa: BLE001 - one source's bug must never break the whole run
         logger.exception("Job fetch failed unexpectedly for source=%s", source)
-        finished_at = datetime.now(timezone.utc)
+        finished_at = datetime.now(UTC)
         fetch_log_repository.create(
             db,
             source=source,
@@ -96,7 +103,7 @@ def _run_one_source(db: Session, fetcher_module, settings: Settings, client: htt
     if expired_count:
         logger.info("Marked %d stale job(s) as expired for source=%s", expired_count, source)
 
-    finished_at = datetime.now(timezone.utc)
+    finished_at = datetime.now(UTC)
     fetch_log_repository.create(
         db,
         source=source,
@@ -116,7 +123,11 @@ def _run_one_source(db: Session, fetcher_module, settings: Settings, client: htt
         updated,
     )
     return JobFetchSummary(
-        source=source, fetched=len(normalized_jobs), created=created, updated=updated, failed=False
+        source=source,
+        fetched=len(normalized_jobs),
+        created=created,
+        updated=updated,
+        failed=False,
     )
 
 

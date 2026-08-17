@@ -30,9 +30,7 @@ class Application(Base):
     """A user's tracked application status for a single job."""
 
     __tablename__ = "applications"
-    __table_args__ = (
-        UniqueConstraint("user_id", "job_id", name="uq_applications_user_id_job_id"),
-    )
+    __table_args__ = (UniqueConstraint("user_id", "job_id", name="uq_applications_user_id_job_id"),)
 
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(

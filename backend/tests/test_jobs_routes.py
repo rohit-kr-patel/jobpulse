@@ -1,8 +1,6 @@
 """Tests for GET /jobs, GET /jobs/{id}, and POST /jobs/fetch."""
 
-from app.core.config import Settings, get_settings
 from app.fetchers.base import NormalizedJob
-from app.main import app
 from app.services import job_service
 
 

@@ -12,7 +12,13 @@ import httpx
 
 from app.core.config import Settings
 from app.fetchers.base import NormalizedJob
-from app.fetchers.utils import display_company_name, html_to_text, looks_remote, parse_csv_list, parse_epoch_millis
+from app.fetchers.utils import (
+    display_company_name,
+    html_to_text,
+    looks_remote,
+    parse_csv_list,
+    parse_epoch_millis,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +39,9 @@ def fetch(settings: Settings, client: httpx.Client) -> list[NormalizedJob]:
     return jobs
 
 
-def _fetch_company(company_slug: str, settings: Settings, client: httpx.Client) -> list[NormalizedJob]:
+def _fetch_company(
+    company_slug: str, settings: Settings, client: httpx.Client
+) -> list[NormalizedJob]:
     try:
         response = client.get(
             f"{_BASE_URL}/{company_slug}",

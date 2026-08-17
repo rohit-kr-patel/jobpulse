@@ -1,6 +1,6 @@
 """Data access for the Job model."""
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from sqlalchemy.orm import Session
 
@@ -9,11 +9,7 @@ from app.models.job import Job
 
 def get_by_source_and_external_id(db: Session, source: str, external_id: str) -> Job | None:
     """Return the job matching this source/external_id pair, if any."""
-    return (
-        db.query(Job)
-        .filter(Job.source == source, Job.external_id == external_id)
-        .one_or_none()
-    )
+    return db.query(Job).filter(Job.source == source, Job.external_id == external_id).one_or_none()
 
 
 def get_by_id(db: Session, job_id: int) -> Job | None:
@@ -39,12 +35,7 @@ def list_jobs(
         query = query.filter(Job.source == source)
     if not include_expired:
         query = query.filter(Job.is_expired.is_(False))
-    return (
-        query.order_by(Job.fetched_at.desc(), Job.id.desc())
-        .offset(offset)
-        .limit(limit)
-        .all()
-    )
+    return query.order_by(Job.fetched_at.desc(), Job.id.desc()).offset(offset).limit(limit).all()
 
 
 def upsert(db: Session, *, source: str, external_id: str, values: dict) -> tuple[Job, bool]:
@@ -58,7 +49,7 @@ def upsert(db: Session, *, source: str, external_id: str, values: dict) -> tuple
         and False for an update to an existing one.
     """
     existing = get_by_source_and_external_id(db, source, external_id)
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     if existing is None:
         job = Job(source=source, external_id=external_id, fetched_at=now, **values)

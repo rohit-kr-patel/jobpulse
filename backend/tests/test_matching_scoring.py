@@ -16,7 +16,9 @@ from app.models.preferences import Preferences, WorkMode
 from app.models.resume import Resume
 
 
-def _make_job(job_id: int, title: str, description: str, *, location: str | None, is_remote: bool) -> Job:
+def _make_job(
+    job_id: int, title: str, description: str, *, location: str | None, is_remote: bool
+) -> Job:
     return Job(
         id=job_id,
         source="greenhouse",
@@ -175,7 +177,13 @@ def test_rank_jobs_returns_empty_list_for_no_jobs():
 
 def test_rank_jobs_scores_are_bounded_between_0_and_1():
     profile = _make_profile()
-    job = _make_job(1, "Backend Engineer", "Python Docker FastAPI", location="Remote", is_remote=True)
+    job = _make_job(
+        1,
+        "Backend Engineer",
+        "Python Docker FastAPI",
+        location="Remote",
+        is_remote=True,
+    )
 
     results = rank_jobs(profile, [job], Settings())
 
